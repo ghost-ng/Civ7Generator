@@ -55,6 +55,12 @@
         .remove-btn:hover {
             color: #ff1a1a;
         }
+        .ai-player-name {
+            color: #fff900;
+        }
+        .human-player-name {
+            color: #459045;
+        }
     </style>
 </head>
 <body>
@@ -93,97 +99,127 @@
     </div>
 
     <script>
-        const civList = [
-            "Aksum", "Egypt", "Greece", "Han China", "Khmer", 
-            "Maurya India", "Maya", "Mississippians", "Persia", 
-            "Rome", "Carthage"
-        ];
+    const civList = [
+        "Aksum", "Egypt", "Greece", "Han China", "Khmer", 
+        "Maurya India", "Maya", "Mississippians", "Persia", 
+        "Rome", "Carthage"
+    ];
 
-        const leaderList = [
-            "Amina", "Ashoka (World Conqueror)", "Ashoka (World Renouncer)", "Augustus", "Benjamin Franklin", 
-            "Catherine the Great", "Charlemagne", "Confucius", "Friedrich (Oblique)", "Friedrich (Baroque)", 
-            "Harriet Tubman", "Hatshepsut", "Himiko (High Shaman)", "Himiko (Queen of Wa)",
-            "Ibn Battuta", "Isabella", "José Rizal", "Lafayette", "Machiavelli", 
-            "Napoleon (Revolutionary)", "Napoleon (Emporer)", "Pachacuti", "Ada Lovelace",
-            "Tecumseh", "Trung Trac", "Xerxes (King of Kings)", "Xerxes (The Achaemenid)"
-        ];
+    const leaderDict = {
+        "Amina": "assets/Civ7_Leader_Images/Leaders_Amina_400x240.jpg",
+        "Ashoka (World Conqueror)": "assets/Civ7_Leader_Images/Civilizations_Ashoka_400x240.jpg",
+        "Ashoka (World Renouncer)": "assets/Civ7_Leader_Images/Civilizations_Ashoka_400x240.jpg",
+        "Augustus": "assets/Civ7_Leader_Images/Civilizations_Augustus_400x240.png",
+        "Benjamin Franklin": "assets/Civ7_Leader_Images/Leaders_Benji_400x240.jpg",
+        "Catherine the Great": "assets/Civ7_Leader_Images/Leaders_Catherine_400x240.jpg",
+        "Charlemagne": "assets/Civ7_Leader_Images/Leaders_Charlemagne_400x240.jpg",
+        "Confucius": "assets/Civ7_Leader_Images/Civilizations_Confusius_400x240.png",
+        "Friedrich (Oblique)": "assets/Civ7_Leader_Images/Leaders_400x240Friedrich.jpg",
+        "Friedrich (Baroque)": "assets/Civ7_Leader_Images/Leaders_400x240Friedrich.jpg",
+        "Harriet Tubman": "assets/Civ7_Leader_Images/Leaders_Harriet_400x240.jpg",
+        "Hatshepsut": "assets/Civ7_Leader_Images/Civilizations_Hatshepsut_400x240.png",
+        "Himiko (High Shaman)": "assets/Civ7_Leader_Images/Leaders_400x240Himiko.jpg",
+        "Himiko (Queen of Wa)": "assets/Civ7_Leader_Images/Leaders_400x240Himiko.jpg",
+        "Ibn Battuta": "assets/Civ7_Leader_Images/Leaders_Ibn_Battuta_400x240.jpg",
+        "Isabella": "assets/Civ7_Leader_Images/Civilizations_Isabella_400x240.jpg",
+        "José Rizal": "assets/Civ7_Leader_Images/Leaders_Jose-Rizal_400x240.jpg",
+        "Lafayette": "assets/Civ7_Leader_Images/Leaders_Lafayette_400x240.jpg",
+        "Machiavelli": "assets/Civ7_Leader_Images/Civilizations_Machiavelli_400x240.jpg",
+        "Napoleon (Revolutionary)": "assets/Civ7_Leader_Images/Leaders_Napoleon_400x240.jpg",
+        "Napoleon (Emporer)": "assets/Civ7_Leader_Images/Leaders_Napoleon_400x240.jpg",
+        "Pachacuti": "assets/Civ7_Leader_Images/Civilizations_Pachacuti_400x240.jpg",
+        "Ada Lovelace": "assets/Civ7_Leader_Images/Leaders_400x240Ada-Lovelace.jpg",
+        "Tecumseh": "assets/Civ7_Leader_Images/Civilizations_Tecumseh_400x240.jpg",
+        "Trung Trac": "assets/Civ7_Leader_Images/Civilizations_TrungTrac_400x240.jpg",
+        "Xerxes (King of Kings)": "assets/Civ7_Leader_Images/Civilizations_Xerxes_400x240.jpg",
+        "Xerxes (The Achaemenid)": "assets/Civ7_Leader_Images/Civilizations_Xerxes_400x240.jpg"
+    };
 
-        let playerCount = 1; // Start with one human player
+    const footer = document.createElement('footer');
+    footer.innerHTML = `<div class="text-center mt-4">
+        <p>Created by <a href="https://github.com/ghost-ng" target="_blank" style="color: #870000;">ghost-ng</a></p>
+        <p>Icons made by <a href="https://civilization.2k.com/civ-vii/game-guide/leaders/" target="_blank" style="color: #870000;">2K Games</a></p>
+    </div>`;
+    document.body.appendChild(footer);
 
-        function addPlayer() {
-            if (playerCount < 8) {
-                playerCount++;
-                let rowId = `player-row-${playerCount}`;
-                let inputDiv = document.createElement("div");
-                inputDiv.className = "input-group mb-2";
-                inputDiv.id = rowId;
-                inputDiv.innerHTML = `
-                    <input type="text" class="form-control player-name" placeholder="Enter Player Name">
-                    <span class="input-group-text remove-btn" onclick="removeRow('${rowId}')">❌</span>
-                `;
-                document.getElementById("player-inputs").appendChild(inputDiv);
+    let playerCount = 1; // Start with one human player
+
+    function addPlayer() {
+        if (playerCount < 8) {
+            playerCount++;
+            let rowId = `player-row-${playerCount}`;
+            let inputDiv = document.createElement("div");
+            inputDiv.className = "input-group mb-2";
+            inputDiv.id = rowId;
+            inputDiv.innerHTML = `
+                <input type="text" class="form-control player-name" placeholder="Enter Player Name">
+                <span class="input-group-text remove-btn" onclick="removeRow('${rowId}')">❌</span>
+            `;
+            document.getElementById("player-inputs").appendChild(inputDiv);
+        }
+    }
+
+    function removeRow(rowId) {
+        document.getElementById(rowId).remove();
+    }
+
+    function getRandomElement(array) {
+        return array[Math.floor(Math.random() * array.length)];
+    }
+
+    function assignRoles() {
+        let playerNames = [];
+        document.querySelectorAll('.player-name').forEach(input => {
+            let name = input.value.trim();
+            if (name) {
+                playerNames.push(name);
             }
+        });
+
+        let aiPlayers = parseInt(document.getElementById("ai-count").value, 10);
+
+        if (playerNames.length < 1) {
+            alert("Enter at least one player!");
+            return;
         }
 
-        function removeRow(rowId) {
-            document.getElementById(rowId).remove();
-        }
+        let selectedCivs = [];
+        let selectedLeaders = [];
+        let outputHTML = "";
 
-        function getRandomElement(array) {
-            return array[Math.floor(Math.random() * array.length)];
-        }
+        // Assign civilizations and leaders to human players
+        playerNames.forEach(player => {
+            let civ = getRandomElement(civList.filter(c => !selectedCivs.includes(c)));
+            let leader = getRandomElement(Object.keys(leaderDict).filter(l => !selectedLeaders.includes(l)));
 
-        function assignRoles() {
-            let playerNames = [];
-            document.querySelectorAll('.player-name').forEach(input => {
-                let name = input.value.trim();
-                if (name) {
-                    playerNames.push(name);
-                }
-            });
+            selectedCivs.push(civ);
+            selectedLeaders.push(leader);
 
-            let aiPlayers = parseInt(document.getElementById("ai-count").value, 10);
+            outputHTML += `<div class="result-box">
+                <p><strong class="human-player-name">${player}</strong> will play as <strong>${civ}</strong> led by <strong>${leader}</strong></p>
+                <img src="${leaderDict[leader]}" alt="${leader}" class="img-fluid">
+            </div>`;
+        });
 
-            if (playerNames.length < 1) {
-                alert("Enter at least one player!");
-                return;
-            }
-
-            let selectedCivs = [];
-            let selectedLeaders = [];
-            let outputHTML = "";
-
-            // Assign civilizations and leaders to human players
-            playerNames.forEach(player => {
+        // Assign civilizations and leaders to AI players if AI count > 0
+        if (aiPlayers > 0) {
+            for (let i = 1; i <= aiPlayers; i++) {
                 let civ = getRandomElement(civList.filter(c => !selectedCivs.includes(c)));
-                let leader = getRandomElement(leaderList.filter(l => !selectedLeaders.includes(l)));
+                let leader = getRandomElement(Object.keys(leaderDict).filter(l => !selectedLeaders.includes(l)));
 
                 selectedCivs.push(civ);
                 selectedLeaders.push(leader);
 
-                outputHTML += `<div class="result-box">
-                    <p><strong>${player}</strong> will play as <strong>${civ}</strong> led by <strong>${leader}</strong></p>
+                outputHTML += `<div class="result-box mb-4">
+                    <p><strong class="ai-player-name">AI Player ${i}</strong> will play as <strong>${civ}</strong> led by <strong>${leader}</strong></p>
+                    <img src="${leaderDict[leader]}" alt="${leader}" class="img-fluid">
                 </div>`;
-            });
-
-            // Assign civilizations and leaders to AI players if AI count > 0
-            if (aiPlayers > 0) {
-                for (let i = 1; i <= aiPlayers; i++) {
-                    let civ = getRandomElement(civList.filter(c => !selectedCivs.includes(c)));
-                    let leader = getRandomElement(leaderList.filter(l => !selectedLeaders.includes(l)));
-
-                    selectedCivs.push(civ);
-                    selectedLeaders.push(leader);
-
-                    outputHTML += `<div class="result-box">
-                        <p><strong>AI Player ${i}</strong> will play as <strong>${civ}</strong> led by <strong>${leader}</strong></p>
-                    </div>`;
-                }
             }
-
-            document.getElementById("output").innerHTML = outputHTML;
         }
-    </script>
+
+        document.getElementById("output").innerHTML = outputHTML;
+    }
+</script>
 
 </body>
 </html>
