@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civilization Randomizer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #1e1e2e;
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin-top: 50px;
+        }
+        .btn-custom {
+            background-color: #ff7f50;
+            border: none;
+        }
+        .btn-custom:hover {
+            background-color: #ff6347;
+        }
+        .form-control {
+            background-color: #2c2c3e;
+            border: 1px solid #444;
+            color: white;
+        }
+        .form-control:focus {
+            background-color: #353548;
+            color: white;
+        }
+        .form-check-input {
+            background-color: #2c2c3e;
+            border: 1px solid #444;
+        }
+        .result-box {
+            background-color: #2c2c3e;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container text-center">
+        <h1 class="mb-4">Civilization & Leader Randomizer</h1>
+
+        <!-- Player Input Fields -->
+        <div id="player-inputs">
+            <div class="input-group mb-2">
+                <input type="text" class="form-control" placeholder="Enter Player Name" id="player1">
+            </div>
+            <div class="input-group mb-2">
+                <input type="text" class="form-control" placeholder="Enter Player Name" id="player2">
+            </div>
+        </div>
+
+        <!-- Button to Add More Players -->
+        <button class="btn btn-sm btn-secondary mb-3" onclick="addPlayer()">+ Add Player</button>
+
+        <!-- Checkbox for AI Players -->
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="aiToggle">
+            <label class="form-check-label" for="aiToggle">Enable AI Players</label>
+        </div>
+
+        <!-- Generate Button -->
+        <button class="btn btn-custom mb-3" onclick="assignRoles()">Generate</button>
+
+        <!-- Output Results -->
+        <div id="output"></div>
+    </div>
+
+    <script>
+        const civList = [
+            "Aksum", "Egypt", "Greece", "Han China", "Khmer", 
+            "Maurya India", "Maya", "Mississippians", "Persia", "Rome"
+        ];
+
+        const leaderList = [
+            "Amina", "Ashoka", "Augustus", "Benjamin Franklin", 
+            "Catherine the Great", "Charlemagne", "Confucius", "Friedrich", 
+            "Harriet Tubman", "Hatshepsut", "Himiko", "Ibn Battuta", 
+            "Isabella", "José Rizal", "Lafayette", "Machiavelli", 
+            "Napoleon", "Pachacuti", "Tecumseh", "Trung Trac", "Xerxes"
+        ];
+
+        let playerCount = 2; // Default two players
+
+        function addPlayer() {
+            if (playerCount < 8) {
+                playerCount++;
+                let inputDiv = document.createElement("div");
+                inputDiv.className = "input-group mb-2";
+                inputDiv.innerHTML = `<input type="text" class="form-control" placeholder="Enter Player Name" id="player${playerCount}">`;
+                document.getElementById("player-inputs").appendChild(inputDiv);
+            }
+        }
+
+        function getRandomElement(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+
+        function assignRoles() {
+            let playerNames = [];
+            for (let i = 1; i <= playerCount; i++) {
+                let playerName = document.getElementById(`player${i}`).value.trim();
+                if (playerName) {
+                    playerNames.push(playerName);
+                }
+            }
+
+            if (playerNames.length < 2) {
+                alert("Enter at least two player names!");
+                return;
+            }
+
+            let selectedCivs = [];
+            let selectedLeaders = [];
+            let outputHTML = "";
+
+            // Assign civilizations and leaders to players
+            playerNames.forEach(player => {
+                let civ = getRandomElement(civList.filter(c => !selectedCivs.includes(c)));
+                let leader = getRandomElement(leaderList.filter(l => !selectedLeaders.includes(l)));
+
+                selectedCivs.push(civ);
+                selectedLeaders.push(leader);
+
+                outputHTML += `<div class="result-box">
+                    <p><strong>${player}</strong> will play as <strong>${civ}</strong> led by <strong>${leader}</strong></p>
+                </div>`;
+            });
+
+            // If AI Players are enabled
+            if (document.getElementById("aiToggle").checked) {
+                let aiCount = Math.min(8 - playerNames.length, playerNames.length); // Ensure at most 8 players total
+                for (let i = 0; i < aiCount; i++) {
+                    let civ = getRandomElement(civList.filter(c => !selectedCivs.includes(c)));
+                    let leader = getRandomElement(leaderList.filter(l => !selectedLeaders.includes(l)));
+
+                    selectedCivs.push(civ);
+                    selectedLeaders.push(leader);
+
+                    outputHTML += `<div class="result-box">
+                        <p><strong>AI Player ${i + 1}</strong> will play as <strong>${civ}</strong> led by <strong>${leader}</strong></p>
+                    </div>`;
+                }
+            }
+
+            document.getElementById("output").innerHTML = outputHTML;
+        }
+    </script>
+
+</body>
+</html>
