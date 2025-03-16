@@ -23,18 +23,14 @@
         .btn-custom:hover {
             background-color: #ff6347;
         }
-        .form-control {
+        .form-control, .form-select {
             background-color: #2c2c3e;
             border: 1px solid #444;
             color: white;
         }
-        .form-control:focus {
+        .form-control:focus, .form-select:focus {
             background-color: #353548;
             color: white;
-        }
-        .form-check-input {
-            background-color: #2c2c3e;
-            border: 1px solid #444;
         }
         .result-box {
             background-color: #2c2c3e;
@@ -61,19 +57,23 @@
         <div id="player-inputs">
             <div class="input-group mb-2" id="player-row-1">
                 <input type="text" class="form-control player-name" placeholder="Enter Player Name">
-                <span class="input-group-text remove-btn d-none" onclick="removeRow('player-row-1')">❌</span>
-            </div>
-            <div class="input-group mb-2" id="player-row-2">
-                <input type="text" class="form-control player-name" placeholder="Enter Player Name">
-                <span class="input-group-text remove-btn d-none" onclick="removeRow('player-row-2')">❌</span>
             </div>
         </div>
         <button class="btn btn-sm btn-secondary mb-3" onclick="addPlayer()">+ Add Player</button>
 
-        <!-- AI Players Section -->
+        <!-- AI Players Dropdown -->
         <h4>AI Players</h4>
-        <div id="ai-inputs"></div>
-        <button class="btn btn-sm btn-secondary mb-3" onclick="addAI()">+ Add AI</button>
+        <select class="form-select mb-3" id="ai-count">
+            <option value="0" selected>0 AI Players</option>
+            <option value="1">1 AI Player</option>
+            <option value="2">2 AI Players</option>
+            <option value="3">3 AI Players</option>
+            <option value="4">4 AI Players</option>
+            <option value="5">5 AI Players</option>
+            <option value="6">6 AI Players</option>
+            <option value="7">7 AI Players</option>
+            <option value="8">8 AI Players</option>
+        </select>
 
         <!-- Generate Button -->
         <button class="btn btn-custom mb-3" onclick="assignRoles()">Generate</button>
@@ -96,8 +96,7 @@
             "Napoleon", "Pachacuti", "Tecumseh", "Trung Trac", "Xerxes"
         ];
 
-        let playerCount = 2;
-        let aiCount = 0;
+        let playerCount = 1; // Start with one human player
 
         function addPlayer() {
             if (playerCount < 8) {
@@ -112,19 +111,6 @@
                 `;
                 document.getElementById("player-inputs").appendChild(inputDiv);
             }
-        }
-
-        function addAI() {
-            aiCount++;
-            let rowId = `ai-row-${aiCount}`;
-            let inputDiv = document.createElement("div");
-            inputDiv.className = "input-group mb-2";
-            inputDiv.id = rowId;
-            inputDiv.innerHTML = `
-                <span class="form-control">AI Player ${aiCount}</span>
-                <span class="input-group-text remove-btn" onclick="removeRow('${rowId}')">❌</span>
-            `;
-            document.getElementById("ai-inputs").appendChild(inputDiv);
         }
 
         function removeRow(rowId) {
@@ -144,10 +130,10 @@
                 }
             });
 
-            let aiPlayers = document.querySelectorAll('#ai-inputs .input-group').length;
+            let aiPlayers = parseInt(document.getElementById("ai-count").value, 10);
 
-            if (playerNames.length < 2 && aiPlayers < 1) {
-                alert("Enter at least two players or add AI opponents!");
+            if (playerNames.length < 1) {
+                alert("Enter at least one player!");
                 return;
             }
 
@@ -168,17 +154,19 @@
                 </div>`;
             });
 
-            // Assign civilizations and leaders to AI players
-            for (let i = 1; i <= aiPlayers; i++) {
-                let civ = getRandomElement(civList.filter(c => !selectedCivs.includes(c)));
-                let leader = getRandomElement(leaderList.filter(l => !selectedLeaders.includes(l)));
+            // Assign civilizations and leaders to AI players if AI count > 0
+            if (aiPlayers > 0) {
+                for (let i = 1; i <= aiPlayers; i++) {
+                    let civ = getRandomElement(civList.filter(c => !selectedCivs.includes(c)));
+                    let leader = getRandomElement(leaderList.filter(l => !selectedLeaders.includes(l)));
 
-                selectedCivs.push(civ);
-                selectedLeaders.push(leader);
+                    selectedCivs.push(civ);
+                    selectedLeaders.push(leader);
 
-                outputHTML += `<div class="result-box">
-                    <p><strong>AI Player ${i}</strong> will play as <strong>${civ}</strong> led by <strong>${leader}</strong></p>
-                </div>`;
+                    outputHTML += `<div class="result-box">
+                        <p><strong>AI Player ${i}</strong> will play as <strong>${civ}</strong> led by <strong>${leader}</strong></p>
+                    </div>`;
+                }
             }
 
             document.getElementById("output").innerHTML = outputHTML;
