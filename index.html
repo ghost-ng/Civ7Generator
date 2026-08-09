@@ -6,112 +6,379 @@
     <title>Civilization Randomizer</title>
     <!--Favicon-->
     <link rel="icon" href="assets/favicon/favicon.ico" type="image/x-icon">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --ink: #0c1220;
+            --panel: rgba(16, 23, 36, 0.88);
+            --panel-edge: rgba(195, 160, 93, 0.35);
+            --brass: #c3a05d;
+            --brass-dim: #8a7344;
+            --brass-bright: #ecd39a;
+            --parchment: #eee4cd;
+            --slate: #97a3b6;
+            --human: #9dc98b;
+            --ai: #b9c4d6;
+            --error: #e08a7a;
+        }
+
+        * { box-sizing: border-box; }
+
         body {
-            background-color: #1e1e2e;
-            background-image: url('assets/civ-background.webp'); /* Update this path as needed */
+            margin: 0;
+            min-height: 100vh;
+            background-color: var(--ink);
+            background-image:
+                linear-gradient(rgba(8, 12, 20, 0.78), rgba(8, 12, 20, 0.92)),
+                url('assets/civ-background.webp');
             background-size: cover;
             background-repeat: no-repeat;
             background-attachment: fixed;
-            color: #fff;
+            color: var(--parchment);
+            font-family: 'Jost', system-ui, sans-serif;
+            font-size: 17px;
+            line-height: 1.5;
+        }
+
+        .wrap {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 48px 20px 64px;
+        }
+
+        /* ---------- Header ---------- */
+        header { text-align: center; margin-bottom: 28px; }
+
+        .eyebrow {
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.32em;
+            text-transform: uppercase;
+            color: var(--brass);
+            margin: 0 0 10px;
+        }
+
+        h1 {
             font-family: 'Cinzel', serif;
+            font-weight: 700;
+            font-size: clamp(1.6rem, 5vw, 2.3rem);
+            letter-spacing: 0.04em;
+            margin: 0;
+            color: var(--parchment);
         }
-        .container {
-            max-width: 600px;
-            margin-top: 50px;
+        h1 .amp { color: var(--brass); font-weight: 400; }
+
+        .double-rule {
+            width: 180px;
+            margin: 18px auto 0;
+            border-top: 1px solid var(--brass-dim);
+            border-bottom: 1px solid var(--brass-dim);
+            height: 4px;
         }
-        .btn-custom {
-            background-color: #ff7f50;
-            border: none;
+
+        /* ---------- Setup panel ---------- */
+        .setup {
+            background: var(--panel);
+            border: 1px solid var(--panel-edge);
+            padding: 28px 26px 30px;
         }
-        .btn-custom:hover {
-            background-color: #ff6347;
+
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            color: var(--brass);
+            margin: 26px 0 12px;
         }
-        .form-control, .form-select {
-            background-color: #2c2c3e;
-            border: 1px solid #444;
-            color: white;
+        .section-label:first-child { margin-top: 0; }
+        .section-label::before,
+        .section-label::after {
+            content: "";
+            flex: 1;
+            border-top: 1px solid rgba(195, 160, 93, 0.25);
         }
-        .form-control:focus, .form-select:focus {
-            background-color: #353548;
-            color: white;
+
+        .input-group { display: flex; margin-bottom: 10px; }
+
+        input[type="text"], select {
+            width: 100%;
+            background: rgba(9, 14, 24, 0.85);
+            border: 1px solid rgba(151, 163, 182, 0.28);
+            color: var(--parchment);
+            font-family: inherit;
+            font-size: 1rem;
+            padding: 10px 14px;
+            outline: none;
+            transition: border-color 0.15s ease;
         }
-        .form-control::placeholder, 
-        .form-select::placeholder {
-            color: white;
-            opacity: 1; /* Ensure full opacity on all browsers */
+        input[type="text"]:focus, select:focus {
+            border-color: var(--brass);
         }
-        .result-box {
-            background-color: #2c2c3e;
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 10px;
-        }
-        .remove-btn {
+        input[type="text"]::placeholder { color: var(--slate); opacity: 1; }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23c3a05d' stroke-width='1.5'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
             cursor: pointer;
-            color: #ff4d4d;
         }
-        .remove-btn:hover {
-            color: #ff1a1a;
+        select:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .remove-btn {
+            display: flex;
+            align-items: center;
+            padding: 0 14px;
+            background: rgba(9, 14, 24, 0.85);
+            border: 1px solid rgba(151, 163, 182, 0.28);
+            border-left: none;
+            color: var(--error);
+            cursor: pointer;
+            font-size: 1.1rem;
+            line-height: 1;
+            user-select: none;
         }
-        .ai-player-name {
-            color: #fff900;
+        .remove-btn:hover { color: #f0a898; border-color: var(--error); }
+
+        .btn {
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.15s ease;
         }
-        .human-player-name {
-            color: #459045;
+
+        .btn-ghost {
+            background: none;
+            border: 1px solid var(--brass-dim);
+            color: var(--brass);
+            padding: 8px 18px;
         }
+        .btn-ghost:hover { border-color: var(--brass-bright); color: var(--brass-bright); }
+
+        .btn-generate {
+            display: block;
+            width: 100%;
+            margin-top: 26px;
+            padding: 14px;
+            font-family: 'Cinzel', serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: 0.22em;
+            color: #171308;
+            background: linear-gradient(180deg, var(--brass-bright), var(--brass) 55%, var(--brass-dim));
+            border: 1px solid var(--brass-bright);
+        }
+        .btn-generate:hover { filter: brightness(1.1); }
+        .btn-generate:active { filter: brightness(0.95); }
+
+        /* ---------- Toggles ---------- */
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .toggle-row label { cursor: pointer; }
+        .toggle-hint { color: var(--slate); font-size: 0.85rem; }
+
+        .switch {
+            appearance: none;
+            flex-shrink: 0;
+            width: 42px;
+            height: 22px;
+            border: 1px solid var(--brass-dim);
+            background: rgba(9, 14, 24, 0.85);
+            position: relative;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+        .switch::before {
+            content: "";
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 14px;
+            height: 14px;
+            background: var(--slate);
+            transition: all 0.15s ease;
+        }
+        .switch:checked { background: rgba(195, 160, 93, 0.25); }
+        .switch:checked::before { left: 23px; background: var(--brass-bright); }
+
+        .form-error {
+            display: none;
+            margin-top: 14px;
+            padding: 10px 14px;
+            border: 1px solid var(--error);
+            color: var(--error);
+            font-size: 0.9rem;
+        }
+        .form-error.visible { display: block; }
+
+        /* ---------- Result plaques ---------- */
+        .results { margin-top: 34px; }
+
+        .plaque {
+            position: relative;
+            background: var(--panel);
+            border: 1px solid var(--panel-edge);
+            padding: 22px 22px 20px;
+            margin-bottom: 22px;
+            text-align: center;
+            animation: rise 0.45s ease both;
+        }
+        .plaque:nth-child(1) { animation-delay: 0s; }
+        .plaque:nth-child(2) { animation-delay: 0.08s; }
+        .plaque:nth-child(3) { animation-delay: 0.16s; }
+        .plaque:nth-child(4) { animation-delay: 0.24s; }
+        .plaque:nth-child(5) { animation-delay: 0.32s; }
+        .plaque:nth-child(n+6) { animation-delay: 0.4s; }
+
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: none; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .plaque { animation: none; }
+        }
+
+        .plaque-tag {
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .plaque.human .plaque-tag { color: var(--human); }
+        .plaque.ai .plaque-tag { color: var(--ai); }
+
+        .portrait {
+            position: relative;
+            display: inline-block;
+            padding: 8px;
+            border: 1px solid var(--brass-dim);
+            max-width: 100%;
+        }
+        .portrait img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+        /* Signature: brass corner brackets on the portrait frame */
+        .portrait::before, .portrait::after,
+        .portrait .corner::before, .portrait .corner::after {
+            content: "";
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-color: var(--brass-bright);
+            border-style: solid;
+            border-width: 0;
+        }
+        .portrait::before { top: -1px; left: -1px; border-top-width: 2px; border-left-width: 2px; }
+        .portrait::after { top: -1px; right: -1px; border-top-width: 2px; border-right-width: 2px; }
+        .portrait .corner::before { bottom: -1px; left: -1px; border-bottom-width: 2px; border-left-width: 2px; }
+        .portrait .corner::after { bottom: -1px; right: -1px; border-bottom-width: 2px; border-right-width: 2px; }
+
+        .plaque-name {
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: 0.06em;
+            margin: 16px 0 2px;
+        }
+        .plaque.human .plaque-name { color: var(--human); }
+        .plaque.ai .plaque-name { color: var(--ai); }
+
+        .plaque-line { color: var(--slate); margin: 0; }
+        .plaque-line strong { color: var(--parchment); font-weight: 600; }
+        .plaque-line .leader { color: var(--brass-bright); }
+
+        /* ---------- Footer ---------- */
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.85rem;
+            color: var(--slate);
+        }
+        footer a { color: var(--brass); text-decoration: none; }
+        footer a:hover { color: var(--brass-bright); text-decoration: underline; }
+
+        :focus-visible { outline: 2px solid var(--brass-bright); outline-offset: 2px; }
     </style>
 </head>
 <body>
 
-    <div class="container text-center">
-        <h1 class="mb-4">Civilization & Leader Randomizer</h1>
+    <div class="wrap">
+        <header>
+            <p class="eyebrow">Game Setup</p>
+            <h1>Civilization <span class="amp">&amp;</span> Leader Randomizer</h1>
+            <div class="double-rule"></div>
+        </header>
 
-        <!-- Human Players Section -->
-        <h4>Human Players</h4>
-        <div id="player-inputs">
-            <div class="input-group mb-2" id="player-row-1">
-                <input type="text" class="form-control player-name" placeholder="Enter Player Name">
+        <main class="setup">
+            <!-- Human Players Section -->
+            <div class="section-label">Human Players</div>
+            <div id="player-inputs">
+                <div class="input-group" id="player-row-1">
+                    <input type="text" class="player-name" placeholder="Enter Player Name (optional for single player)">
+                </div>
             </div>
-        </div>
-        <button class="btn btn-sm btn-secondary mb-3" onclick="addPlayer()">+ Add Player</button>
+            <button class="btn btn-ghost" onclick="addPlayer()">+ Add Player</button>
 
-        <!-- AI Players Dropdown -->
-        <h4>AI Players</h4>
-        <select class="form-select mb-3" id="ai-count">
-            <option value="0" selected>0 AI Players</option>
-            <option value="1">1 AI Player</option>
-            <option value="2">2 AI Players</option>
-            <option value="3">3 AI Players</option>
-            <option value="4">4 AI Players</option>
-            <option value="5">5 AI Players</option>
-            <option value="6">6 AI Players</option>
-            <option value="7">7 AI Players</option>
-            <option value="8">8 AI Players</option>
-        </select>
+            <!-- AI Players Dropdown -->
+            <div class="section-label">AI Players</div>
+            <select id="ai-count" aria-label="Number of AI players">
+                <option value="0" selected>0 AI Players</option>
+                <option value="1">1 AI Player</option>
+                <option value="2">2 AI Players</option>
+                <option value="3">3 AI Players</option>
+                <option value="4">4 AI Players</option>
+                <option value="5">5 AI Players</option>
+                <option value="6">6 AI Players</option>
+                <option value="7">7 AI Players</option>
+                <option value="8">8 AI Players</option>
+            </select>
 
-        <!-- schizophrenia Mode Checkbox -->
-        <div class="d-lg-flex form-check form-switch mb-3">
-            <input class="form-check-input mx-3" type="checkbox" id="schizophrenia-mode">
-            <label class="form-check-label" for="schizophrenia-mode">
-                Multiple Personas Mode
-            </label>
-        </div>
+            <!-- Options -->
+            <div class="section-label">Options</div>
+            <div class="toggle-row">
+                <input class="switch" type="checkbox" id="humans-only">
+                <label for="humans-only">Humans only <span class="toggle-hint">— generate only human players, skip AI</span></label>
+            </div>
+            <div class="toggle-row">
+                <input class="switch" type="checkbox" id="schizophrenia-mode">
+                <label for="schizophrenia-mode">Multiple Personas Mode <span class="toggle-hint">— allow two personas of the same leader</span></label>
+            </div>
 
-        <!-- Generate Button -->
-        <button class="btn btn-custom mb-3" onclick="assignRoles()">Generate</button>
+            <div class="form-error" id="form-error" role="alert"></div>
+
+            <!-- Generate Button -->
+            <button class="btn btn-generate" onclick="assignRoles()">Generate</button>
+        </main>
 
         <!-- Output Results -->
-        <div id="output"></div>
+        <section id="output" class="results" aria-live="polite"></section>
+
+        <footer>
+            <p>Created by <a href="https://github.com/ghost-ng" target="_blank">ghost-ng</a></p>
+            <p>Icons made by <a href="https://civilization.2k.com/civ-vii/game-guide/leaders/" target="_blank">2K Games</a></p>
+        </footer>
     </div>
 
     <script>
     const civList = [
-        "Aksum", "Egypt", "Greece", "Han China", "Khmer", 
-        "Maurya India", "Maya", "Mississippians", "Persia", 
+        "Aksum", "Egypt", "Greece", "Han China", "Khmer",
+        "Maurya India", "Maya", "Mississippians", "Persia",
         "Rome", "Carthage"
     ];
 
@@ -145,13 +412,6 @@
         "Xerxes (The Achaemenid)": "assets/Civ7_Leader_Images/Civilizations_Xerxes_400x240.jpg"
     };
 
-    const footer = document.createElement('footer');
-    footer.innerHTML = `<div class="text-center mt-4 mb-4">
-        <p>Created by <a href="https://github.com/ghost-ng" target="_blank" style="color: #870000;">ghost-ng</a></p>
-        <p>Icons made by <a href="https://civilization.2k.com/civ-vii/game-guide/leaders/" target="_blank" style="color: #870000;">2K Games</a></p>
-    </div>`;
-    document.body.appendChild(footer);
-
     let playerCount = 1; // Start with one human player
 
     function addPlayer() {
@@ -159,11 +419,11 @@
             playerCount++;
             let rowId = `player-row-${playerCount}`;
             let inputDiv = document.createElement("div");
-            inputDiv.className = "input-group mb-2";
+            inputDiv.className = "input-group";
             inputDiv.id = rowId;
             inputDiv.innerHTML = `
-                <input type="text" class="form-control player-name" placeholder="Enter Player Name">
-                <span class="input-group-text remove-btn" onclick="removeRow('${rowId}')">❌</span>
+                <input type="text" class="player-name" placeholder="Enter Player Name">
+                <span class="remove-btn" role="button" aria-label="Remove player" onclick="removeRow('${rowId}')">&times;</span>
             `;
             document.getElementById("player-inputs").appendChild(inputDiv);
         }
@@ -189,7 +449,28 @@
         return Object.keys(leaderDict).filter(l => !selectedLeaders.includes(l));
     }
 
+    function showError(message) {
+        let errorBox = document.getElementById("form-error");
+        errorBox.textContent = message;
+        errorBox.classList.add("visible");
+    }
+
+    function clearError() {
+        document.getElementById("form-error").classList.remove("visible");
+    }
+
+    function renderPlaque(name, civ, leader, isHuman) {
+        return `<div class="plaque ${isHuman ? "human" : "ai"}">
+            <div class="plaque-tag">${isHuman ? "Human" : "AI Opponent"}</div>
+            <div class="portrait"><span class="corner"></span><img src="${leaderDict[leader]}" alt="${leader}"></div>
+            <div class="plaque-name">${name}</div>
+            <p class="plaque-line">plays <strong>${civ}</strong> led by <strong class="leader">${leader}</strong></p>
+        </div>`;
+    }
+
     function assignRoles() {
+        clearError();
+
         let playerNames = [];
         document.querySelectorAll('.player-name').forEach(input => {
             let name = input.value.trim();
@@ -198,11 +479,18 @@
             }
         });
 
-        let aiPlayers = parseInt(document.getElementById("ai-count").value, 10);
+        // Single player: no name needed, just generate for one player
+        if (playerNames.length < 1) {
+            playerNames.push("Player 1");
+        }
+
+        let humansOnly = document.getElementById("humans-only").checked;
+        let aiPlayers = humansOnly ? 0 : parseInt(document.getElementById("ai-count").value, 10);
         let schizophreniaMode = document.getElementById("schizophrenia-mode").checked;
 
-        if (playerNames.length < 1) {
-            alert("Enter at least one player!");
+        let totalPlayers = playerNames.length + aiPlayers;
+        if (totalPlayers > civList.length) {
+            showError(`Only ${civList.length} civilizations are available — reduce players or AI (requested ${totalPlayers}).`);
             return;
         }
 
@@ -218,30 +506,27 @@
             selectedCivs.push(civ);
             selectedLeaders.push(leader);
 
-            outputHTML += `<div class="result-box">
-                <p><strong class="human-player-name">${player}</strong> will play as <strong>${civ}</strong> led by <strong>${leader}</strong></p>
-                <img src="${leaderDict[leader]}" alt="${leader}" class="img-fluid">
-            </div>`;
+            outputHTML += renderPlaque(player, civ, leader, true);
         });
 
         // Assign civilizations and leaders to AI players if AI count > 0
-        if (aiPlayers > 0) {
-            for (let i = 1; i <= aiPlayers; i++) {
-                let civ = getRandomElement(civList.filter(c => !selectedCivs.includes(c)));
-                let leader = getRandomElement(filterLeaders(selectedLeaders, schizophreniaMode));
+        for (let i = 1; i <= aiPlayers; i++) {
+            let civ = getRandomElement(civList.filter(c => !selectedCivs.includes(c)));
+            let leader = getRandomElement(filterLeaders(selectedLeaders, schizophreniaMode));
 
-                selectedCivs.push(civ);
-                selectedLeaders.push(leader);
+            selectedCivs.push(civ);
+            selectedLeaders.push(leader);
 
-                outputHTML += `<div class="result-box mb-4">
-                    <p><strong class="ai-player-name">AI Player ${i}</strong> will play as <strong>${civ}</strong> led by <strong>${leader}</strong></p>
-                    <img src="${leaderDict[leader]}" alt="${leader}" class="img-fluid">
-                </div>`;
-            }
+            outputHTML += renderPlaque(`AI Player ${i}`, civ, leader, false);
         }
 
         document.getElementById("output").innerHTML = outputHTML;
     }
+
+    // Humans-only toggle disables the AI dropdown
+    document.getElementById("humans-only").addEventListener("change", function () {
+        document.getElementById("ai-count").disabled = this.checked;
+    });
     </script>
 
 </body>
