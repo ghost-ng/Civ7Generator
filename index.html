@@ -270,8 +270,10 @@
         }
         .portrait img {
             display: block;
+            width: 400px;
             max-width: 100%;
-            height: auto;
+            aspect-ratio: 5 / 3;
+            object-fit: cover;
         }
         /* Signature: brass corner brackets on the portrait frame */
         .portrait::before, .portrait::after,
@@ -377,12 +379,14 @@
 
     <script>
     const civList = [
-        "Aksum", "Egypt", "Greece", "Han China", "Khmer",
-        "Maurya India", "Maya", "Mississippians", "Persia",
-        "Rome", "Carthage"
+        "Aksum", "Assyria", "Egypt", "Greece", "Han China",
+        "Heian Japan", "Khmer", "Maurya India", "Maya",
+        "Mississippians", "Persia", "Rome", "Carthage",
+        "Silla", "Tonga"
     ];
 
     const leaderDict = {
+        "Alexander the Great": "assets/Civ7_Leader_Images/CIV7-BASE-FIRSTLOOK_ALEXANDER-STATIC-ENUS-NO_RATING-AGN-1920x1080-R1.jpg",
         "Amina": "assets/Civ7_Leader_Images/Leaders_Amina_400x240.jpg",
         "Ashoka (World Conqueror)": "assets/Civ7_Leader_Images/Civilizations_Ashoka_400x240.jpg",
         "Ashoka (World Renouncer)": "assets/Civ7_Leader_Images/Civilizations_Ashoka_400x240.jpg",
@@ -391,8 +395,11 @@
         "Catherine the Great": "assets/Civ7_Leader_Images/Leaders_Catherine_400x240.jpg",
         "Charlemagne": "assets/Civ7_Leader_Images/Leaders_Charlemagne_400x240.jpg",
         "Confucius": "assets/Civ7_Leader_Images/Civilizations_Confusius_400x240.png",
+        "Edward Teach": "assets/Civ7_Leader_Images/Blackbeard_400x240.png",
         "Friedrich (Oblique)": "assets/Civ7_Leader_Images/Leaders_400x240Friedrich.jpg",
         "Friedrich (Baroque)": "assets/Civ7_Leader_Images/Leaders_400x240Friedrich.jpg",
+        "Genghis Khan": "assets/Civ7_Leader_Images/Leaders_400x240Genghis.jpg",
+        "Gilgamesh": "assets/Civ7_Leader_Images/Gilgamesh_Leader_800x450.png",
         "Harriet Tubman": "assets/Civ7_Leader_Images/Leaders_Harriet_400x240.jpg",
         "Hatshepsut": "assets/Civ7_Leader_Images/Civilizations_Hatshepsut_400x240.png",
         "Himiko (High Shaman)": "assets/Civ7_Leader_Images/Leaders_400x240Himiko.jpg",
@@ -401,15 +408,20 @@
         "Isabella": "assets/Civ7_Leader_Images/Civilizations_Isabella_400x240.jpg",
         "José Rizal": "assets/Civ7_Leader_Images/Leaders_Jose-Rizal_400x240.jpg",
         "Lafayette": "assets/Civ7_Leader_Images/Leaders_Lafayette_400x240.jpg",
+        "Lakshmibai": "assets/Civ7_Leader_Images/Leaders_400x240Lakshmibai.jpg",
         "Machiavelli": "assets/Civ7_Leader_Images/Civilizations_Machiavelli_400x240.jpg",
         "Napoleon (Revolutionary)": "assets/Civ7_Leader_Images/Leaders_Napoleon_400x240.jpg",
         "Napoleon (Emperor)": "assets/Civ7_Leader_Images/Leaders_Napoleon_400x240.jpg",
         "Pachacuti": "assets/Civ7_Leader_Images/Civilizations_Pachacuti_400x240.jpg",
         "Ada Lovelace": "assets/Civ7_Leader_Images/Leaders_400x240Ada-Lovelace.jpg",
+        "Sayyida al Hurra": "assets/Civ7_Leader_Images/Sayyida_400x240.png",
+        "Simón Bolívar": "assets/Civ7_Leader_Images/Leaders_400x240Simon.jpg",
         "Tecumseh": "assets/Civ7_Leader_Images/Civilizations_Tecumseh_400x240.jpg",
+        "Toyotomi Hideyoshi": "assets/Civ7_Leader_Images/CIV7-CC4-TOYOTOMI_HIDEYOSHI_PLAIN_V1-NA-STATIC-ENUS-NO_RATING-AGN-400x240-FINAL.png",
         "Trung Trac": "assets/Civ7_Leader_Images/Civilizations_TrungTrac_400x240.jpg",
         "Xerxes (King of Kings)": "assets/Civ7_Leader_Images/Civilizations_Xerxes_400x240.jpg",
-        "Xerxes (The Achaemenid)": "assets/Civ7_Leader_Images/Civilizations_Xerxes_400x240.jpg"
+        "Xerxes (The Achaemenid)": "assets/Civ7_Leader_Images/Civilizations_Xerxes_400x240.jpg",
+        "Yi Sun-sin": "assets/Civ7_Leader_Images/CIV7-CC4-YI_SUN_SIN_PLAIN_V1-NA-STATIC-ENUS-NO_RATING-AGN-644x320-FINAL.jpg"
     };
 
     let playerCount = 1; // Start with one human player
