@@ -1,8 +1,9 @@
 .civgen {
-    /* Bottom-left: the lobby's chat panel occupies the bottom-right. */
+    /* Left side, raised clear of the lobby's Back button (bottom-left);
+       the chat panel occupies the bottom-right. */
     position: absolute;
     left: 1.5rem;
-    bottom: 1.5rem;
+    bottom: 7rem;
     z-index: 100;
     display: flex;
     flex-direction: column;
