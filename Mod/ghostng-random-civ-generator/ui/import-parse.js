@@ -1,5 +1,5 @@
 /**
- * Parser for Civ7 Randomizer loadout codes. Pure module — no game APIs — so it
+ * Parser for Civ7 Randomizer generator codes. Pure module — no game APIs — so it
  * can be unit-tested outside the game.
  *
  * Format (one line):
@@ -12,7 +12,7 @@
  *          LEADER_ / CIVILIZATION_ prefixes.
  */
 
-export const LOADOUT_MAGIC = "C7L1";
+export const CODE_MAGIC = "C7L1";
 const AGES = ["ANTIQUITY", "EXPLORATION", "MODERN"];
 const TOKEN_RE = /^[A-Z0-9_]+$/;
 
@@ -21,15 +21,15 @@ const TOKEN_RE = /^[A-Z0-9_]+$/;
  * @returns {{ok: true, age: string, players: {role: 'H'|'A', leader: string, civ: string}[]}
  *         | {ok: false, error: string}}
  */
-export function parseLoadoutCode(text) {
+export function parseGeneratorCode(text) {
     const trimmed = (text ?? "").trim();
     if (!trimmed) {
         return { ok: false, error: "Empty code. Paste a code from the Civ7 Randomizer web app." };
     }
 
     const fields = trimmed.split(";").map(f => f.trim()).filter(f => f.length > 0);
-    if (fields[0]?.toUpperCase() !== LOADOUT_MAGIC) {
-        return { ok: false, error: "Not a Civ7 Randomizer code (expected it to start with " + LOADOUT_MAGIC + ")." };
+    if (fields[0]?.toUpperCase() !== CODE_MAGIC) {
+        return { ok: false, error: "Not a Civ7 Randomizer code (expected it to start with " + CODE_MAGIC + ")." };
     }
 
     const age = (fields[1] ?? "").toUpperCase();

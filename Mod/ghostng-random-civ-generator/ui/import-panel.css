@@ -1,4 +1,4 @@
-.loadout-import {
+.civgen {
     position: absolute;
     right: 1.5rem;
     bottom: 1.5rem;
@@ -10,7 +10,7 @@
     pointer-events: auto;
 }
 
-.loadout-import__tab {
+.civgen__tab {
     background: rgba(16, 23, 36, 0.92);
     border: 0.0625rem solid #c3a05d;
     color: #ecd39a;
@@ -19,11 +19,11 @@
     text-transform: uppercase;
     cursor: pointer;
 }
-.loadout-import__tab:hover {
+.civgen__tab:hover {
     background: rgba(195, 160, 93, 0.25);
 }
 
-.loadout-import__body {
+.civgen__body {
     background: rgba(16, 23, 36, 0.95);
     border: 0.0625rem solid rgba(195, 160, 93, 0.5);
     padding: 0.8rem;
@@ -32,25 +32,25 @@
     display: flex;
     flex-direction: column;
 }
-.loadout-import--collapsed .loadout-import__body {
+.civgen--collapsed .civgen__body {
     display: none;
 }
 
-.loadout-import__title {
+.civgen__title {
     color: #ecd39a;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     margin-bottom: 0.3rem;
 }
-.loadout-import__hint {
+.civgen__hint {
     color: #97a3b6;
     margin-bottom: 0.5rem;
 }
-.loadout-import__input {
+.civgen__input {
     width: 100%;
     margin-bottom: 0.5rem;
 }
-.loadout-import__apply {
+.civgen__apply {
     align-self: flex-end;
     background: #c3a05d;
     color: #171308;
@@ -59,15 +59,15 @@
     text-transform: uppercase;
     cursor: pointer;
 }
-.loadout-import__apply:hover {
+.civgen__apply:hover {
     background: #ecd39a;
 }
-.loadout-import__status {
+.civgen__status {
     color: #9dc98b;
     margin-top: 0.5rem;
     max-height: 6rem;
     overflow-y: auto;
 }
-.loadout-import__status--error {
+.civgen__status--error {
     color: #e08a7a;
 }

@@ -2,7 +2,7 @@
 <Mod id="ghostng-random-civ-generator" version="1" xmlns="ModInfo">
 	<Properties>
 		<Name>Ghosts Random Civ Generator</Name>
-		<Description>Paste a loadout code from the Ghosts Random Civ Generator web app into the Create Game screen to apply its civ and leader assignments for you and the AI players. Content missing from your game is randomized instead.</Description>
+		<Description>Paste a generator code from the Ghosts Random Civ Generator web app into the Create Game screen to apply its civ and leader assignments for you and the AI players. Content missing from your game is randomized instead.</Description>
 		<Authors>ghost-ng</Authors>
 		<Package>Mod</Package>
 		<AffectsSavedGames>0</AffectsSavedGames>
@@ -16,17 +16,17 @@
 		</Criteria>
 	</ActionCriteria>
 	<ActionGroups>
-		<ActionGroup id="loadout-import-shell" scope="shell" criteria="always">
+		<ActionGroup id="civgen-shell" scope="shell" criteria="always">
 			<Properties>
 				<LoadOrder>100</LoadOrder>
 			</Properties>
 			<Actions>
 				<UIScripts>
-					<Item>ui/loadout-import.js</Item>
+					<Item>ui/import-panel.js</Item>
 				</UIScripts>
 				<ImportFiles>
-					<Item>ui/loadout-parse.js</Item>
-					<Item>ui/loadout-import.css</Item>
+					<Item>ui/import-parse.js</Item>
+					<Item>ui/import-panel.css</Item>
 				</ImportFiles>
 			</Actions>
 		</ActionGroup>

@@ -10,10 +10,10 @@
  * The OS clipboard is not readable from the game UI, so the user pastes
  * (Ctrl+V) into an fxs-textbox and clicks Apply.
  */
-import { parseLoadoutCode } from "/ghostng-random-civ-generator/ui/loadout-parse.js";
+import { parseGeneratorCode } from "/ghostng-random-civ-generator/ui/import-parse.js";
 
 const PANEL_ID = "ghostng-random-civ-generator-panel";
-const CSS_URL = "fs://game/ghostng-random-civ-generator/ui/loadout-import.css";
+const CSS_URL = "fs://game/ghostng-random-civ-generator/ui/import-panel.css";
 
 function ensureStylesheet() {
     if (!document.querySelector(`link[href="${CSS_URL}"]`)) {
@@ -60,8 +60,8 @@ function setSlotAsParticipant(playerId, isHuman) {
     }
 }
 
-function applyLoadout(code) {
-    const parsed = parseLoadoutCode(code);
+function applyGeneratorCode(code) {
+    const parsed = parseGeneratorCode(code);
     if (!parsed.ok) {
         return { ok: false, message: parsed.error };
     }
@@ -156,36 +156,36 @@ function applyLoadout(code) {
 function buildPanel() {
     const panel = document.createElement("div");
     panel.id = PANEL_ID;
-    panel.classList.add("loadout-import", "loadout-import--collapsed");
+    panel.classList.add("civgen", "civgen--collapsed");
     panel.innerHTML = `
-        <div class="loadout-import__tab" role="button" tabindex="-1">Import Loadout</div>
-        <div class="loadout-import__body">
-            <div class="loadout-import__title">Ghosts Random Civ Generator</div>
-            <div class="loadout-import__hint">Paste your loadout code (Ctrl+V), then Apply.</div>
-            <fxs-textbox class="loadout-import__input" enabled="true" placeholder="C7L1;ANTIQUITY;H:AMINA:ROME;..."></fxs-textbox>
-            <div class="loadout-import__apply" role="button" tabindex="-1">Apply</div>
-            <div class="loadout-import__status"></div>
+        <div class="civgen__tab" role="button" tabindex="-1">Import Code</div>
+        <div class="civgen__body">
+            <div class="civgen__title">Ghosts Random Civ Generator</div>
+            <div class="civgen__hint">Paste your generator code (Ctrl+V), then Apply.</div>
+            <fxs-textbox class="civgen__input" enabled="true" placeholder="C7L1;ANTIQUITY;H:AMINA:ROME;..."></fxs-textbox>
+            <div class="civgen__apply" role="button" tabindex="-1">Apply</div>
+            <div class="civgen__status"></div>
         </div>`;
 
-    const tab = panel.querySelector(".loadout-import__tab");
-    const applyBtn = panel.querySelector(".loadout-import__apply");
-    const status = panel.querySelector(".loadout-import__status");
-    const textbox = panel.querySelector(".loadout-import__input");
+    const tab = panel.querySelector(".civgen__tab");
+    const applyBtn = panel.querySelector(".civgen__apply");
+    const status = panel.querySelector(".civgen__status");
+    const textbox = panel.querySelector(".civgen__input");
 
     tab.addEventListener("click", () => {
-        panel.classList.toggle("loadout-import--collapsed");
+        panel.classList.toggle("civgen--collapsed");
     });
 
     const runApply = () => {
         try {
             const value = textbox.value ?? textbox.getAttribute("value") ?? "";
-            const result = applyLoadout(value);
+            const result = applyGeneratorCode(value);
             status.textContent = result.message;
-            status.classList.toggle("loadout-import__status--error", !result.ok);
+            status.classList.toggle("civgen__status--error", !result.ok);
         } catch (err) {
-            console.error("loadout-import: apply failed", err);
+            console.error("civgen: apply failed", err);
             status.textContent = "Something went wrong applying the code — see UI.log.";
-            status.classList.add("loadout-import__status--error");
+            status.classList.add("civgen__status--error");
         }
     };
     applyBtn.addEventListener("click", runApply);
@@ -223,7 +223,7 @@ class LoadoutImportDecorator {
         try {
             injectInto(this.Root);
         } catch (err) {
-            console.error("loadout-import: failed to inject panel", err);
+            console.error("civgen: failed to inject panel", err);
         }
     }
     beforeDetach() { }

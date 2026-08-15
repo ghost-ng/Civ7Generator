@@ -95,9 +95,9 @@ Mod/
   ghostng-random-civ-generator/
     ghostng-random-civ-generator.modinfo
     ui/
-      loadout-import.js      # screen hook + panel + apply logic
-      loadout-parse.js       # pure parser/validator (no game APIs — testable)
-      loadout-import.css
+      import-panel.js      # screen hook + panel + apply logic
+      import-parse.js       # pure parser/validator (no game APIs — testable)
+      import-panel.css
     README.md                # install + Workshop upload instructions
 ```
 
@@ -105,13 +105,13 @@ Mod/
   JS, `ImportFiles` for the CSS, `LoadOrder` 100, `AffectsSavedGames=0`,
   dependency on `core`. Mod id `ghostng-random-civ-generator` (prefix convention, not
   reverse-DNS).
-- `loadout-import.js`:
+- `import-panel.js`:
   - hooks the screen via the framework's official decorator API —
     `Controls.decorate("create-game-sp", ...)` — which constructs the decorator
     with the component instance on attach and drives lifecycle methods
     (verified in `component-support.js:239` and modeled on bz's published UI
     mods, which use the same pattern). `afterAttach` injects a collapsible
-    "Randomizer Import" overlay panel: an `fxs-textbox` + Apply button +
+    "Ghosts Random Civ Generator" overlay panel: an `fxs-textbox` + Apply button +
     status line. No prototype patching — the SolidJS screen offers none.
   - On Apply: parse → validate every leader/civ against the live
     `GameSetup` domains (report unowned/unknown entries by name) → apply:
@@ -131,7 +131,7 @@ Mod/
 
 ## Testing
 
-- Parser (`loadout-parse.js`) is game-API-free and tested with Node.
+- Parser (`import-parse.js`) is game-API-free and tested with Node.
 - Export round-trip tested in the DOM simulation used for earlier features
   (generate → export code → parse with the mod's parser → compare).
 - In-game behavior needs a manual pass (enable console/ReloadUI via
