@@ -307,6 +307,31 @@
         }
         .form-error.visible { display: block; }
 
+        /* ---------- Export bar ---------- */
+        .export-bar {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 4px;
+            padding: 14px 16px;
+            background: var(--panel);
+            border: 1px solid var(--panel-edge);
+        }
+        .export-bar .toggle-hint a { color: var(--brass); }
+        .export-bar .toggle-hint a:hover { color: var(--brass-bright); }
+        #mod-code-fallback {
+            width: 100%;
+            background: rgba(9, 14, 24, 0.85);
+            border: 1px solid rgba(151, 163, 182, 0.28);
+            color: var(--parchment);
+            font-family: monospace;
+            font-size: 0.8rem;
+            padding: 8px;
+            resize: none;
+            height: 3.2em;
+        }
+
         /* ---------- Result plaques ---------- */
         .results { margin-top: 34px; }
 
@@ -607,6 +632,71 @@
         updateDlcMode();
     });
 
+    // Internal game IDs (verified against Civ VII game files) for the mod-code
+    // export. Tokens omit the LEADER_ / CIVILIZATION_ prefixes; alternate
+    // personas use the game's _ALT suffix.
+    const civIds = {
+        "Aksum": "AKSUM", "Assyria": "ASSYRIA", "Egypt": "EGYPT", "Greece": "GREECE",
+        "Han China": "HAN", "Heian Japan": "HEIAN", "Khmer": "KHMER",
+        "Maurya India": "MAURYA", "Maya": "MAYA", "Mississippians": "MISSISSIPPIAN",
+        "Persia": "PERSIA", "Rome": "ROME", "Carthage": "CARTHAGE",
+        "Silla": "SILLA", "Tonga": "TONGA"
+    };
+
+    const leaderIds = {
+        "Alexander the Great": "ALEXANDER", "Amina": "AMINA",
+        "Ashoka (World Conqueror)": "ASHOKA_ALT", "Ashoka (World Renouncer)": "ASHOKA",
+        "Augustus": "AUGUSTUS", "Benjamin Franklin": "BENJAMIN_FRANKLIN",
+        "Catherine the Great": "CATHERINE", "Charlemagne": "CHARLEMAGNE",
+        "Confucius": "CONFUCIUS", "Edward Teach": "EDWARD_TEACH",
+        "Friedrich (Oblique)": "FRIEDRICH", "Friedrich (Baroque)": "FRIEDRICH_ALT",
+        "Genghis Khan": "GENGHIS_KHAN", "Gilgamesh": "GILGAMESH",
+        "Harriet Tubman": "HARRIET_TUBMAN", "Hatshepsut": "HATSHEPSUT",
+        "Himiko (High Shaman)": "HIMIKO_ALT", "Himiko (Queen of Wa)": "HIMIKO",
+        "Ibn Battuta": "IBN_BATTUTA", "Isabella": "ISABELLA",
+        "José Rizal": "JOSE_RIZAL", "Lafayette": "LAFAYETTE",
+        "Lakshmibai": "LAKSHMIBAI", "Machiavelli": "MACHIAVELLI",
+        "Napoleon (Revolutionary)": "NAPOLEON_ALT", "Napoleon (Emperor)": "NAPOLEON",
+        "Pachacuti": "PACHACUTI", "Ada Lovelace": "ADA_LOVELACE",
+        "Sayyida al Hurra": "SAYYIDA_AL_HURRA", "Simón Bolívar": "BOLIVAR",
+        "Tecumseh": "TECUMSEH", "Toyotomi Hideyoshi": "TOYOTOMI_HIDEYOSHI",
+        "Trung Trac": "TRUNG_TRAC", "Xerxes (King of Kings)": "XERXES",
+        "Xerxes (The Achaemenid)": "XERXES_ALT", "Yi Sun-sin": "YI_SUN_SIN"
+    };
+
+    let lastAssignment = []; // [{role: 'H'|'A', leader, civ}] from the latest generation
+
+    function buildLoadoutCode() {
+        const entries = lastAssignment.map(a =>
+            `${a.role}:${leaderIds[a.leader]}:${civIds[a.civ]}`);
+        return ["C7L1", "ANTIQUITY", ...entries].join(";");
+    }
+
+    function copyModCode() {
+        const code = buildLoadoutCode();
+        const done = () => {
+            const btn = document.getElementById("copy-mod-code");
+            if (btn) {
+                btn.textContent = "Copied!";
+                setTimeout(() => { btn.textContent = "Copy Mod Code"; }, 1600);
+            }
+        };
+        if (navigator.clipboard?.writeText) {
+            navigator.clipboard.writeText(code).then(done).catch(() => promptFallback(code, done));
+        } else {
+            promptFallback(code, done);
+        }
+    }
+
+    function promptFallback(code, done) {
+        const box = document.getElementById("mod-code-fallback");
+        box.value = code;
+        box.style.display = "block";
+        box.focus();
+        box.select();
+        try { document.execCommand("copy"); done(); } catch (e) { /* user copies manually */ }
+    }
+
     let playerCount = 1; // Start with one human player
 
     function addPlayer() {
@@ -697,6 +787,7 @@
         let selectedCivs = [];
         let selectedLeaders = [];
         let outputHTML = "";
+        lastAssignment = [];
 
         // Assign civilizations and leaders to human players
         playerNames.forEach(player => {
@@ -705,6 +796,7 @@
 
             selectedCivs.push(civ);
             selectedLeaders.push(leader);
+            lastAssignment.push({ role: "H", leader, civ });
 
             outputHTML += renderPlaque(player, civ, leader, true);
         });
@@ -716,9 +808,17 @@
 
             selectedCivs.push(civ);
             selectedLeaders.push(leader);
+            lastAssignment.push({ role: "A", leader, civ });
 
             outputHTML += renderPlaque(`AI Player ${i}`, civ, leader, false);
         }
+
+        outputHTML += `<div class="export-bar">
+            <button class="btn btn-ghost" id="copy-mod-code" onclick="copyModCode()">Copy Mod Code</button>
+            <span class="toggle-hint">— paste into the in-game Import Loadout panel
+                (<a href="https://github.com/ghost-ng/Civ7Generator/tree/main/Mod/ghostng-loadout-import" target="_blank">get the mod</a>)</span>
+            <textarea id="mod-code-fallback" readonly aria-label="Mod code" style="display:none"></textarea>
+        </div>`;
 
         document.getElementById("output").innerHTML = outputHTML;
     }

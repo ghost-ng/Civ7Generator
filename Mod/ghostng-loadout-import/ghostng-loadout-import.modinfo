@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Mod id="ghostng-loadout-import" version="1" xmlns="ModInfo">
+	<Properties>
+		<Name>Randomizer Loadout Import</Name>
+		<Description>Paste a loadout code from the Civ7 Randomizer web app into the Create Game screen to apply its civ and leader assignments for you and the AI players.</Description>
+		<Authors>ghost-ng</Authors>
+		<Package>Mod</Package>
+		<AffectsSavedGames>0</AffectsSavedGames>
+	</Properties>
+	<Dependencies>
+		<Mod id="core" title="LOC_MODULE_BASE_STANDARD_NAME" />
+	</Dependencies>
+	<ActionCriteria>
+		<Criteria id="always">
+			<AlwaysMet />
+		</Criteria>
+	</ActionCriteria>
+	<ActionGroups>
+		<ActionGroup id="loadout-import-shell" scope="shell" criteria="always">
+			<Properties>
+				<LoadOrder>100</LoadOrder>
+			</Properties>
+			<Actions>
+				<UIScripts>
+					<Item>ui/loadout-import.js</Item>
+				</UIScripts>
+				<ImportFiles>
+					<Item>ui/loadout-parse.js</Item>
+					<Item>ui/loadout-import.css</Item>
+				</ImportFiles>
+			</Actions>
+		</ActionGroup>
+	</ActionGroups>
+</Mod>
