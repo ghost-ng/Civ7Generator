@@ -667,13 +667,25 @@
     let lastAssignment = []; // [{role: 'H'|'A', leader, civ}] from the latest generation
 
     function buildLoadoutCode() {
-        const entries = lastAssignment.map(a =>
-            `${a.role}:${leaderIds[a.leader]}:${civIds[a.civ]}`);
+        const entries = lastAssignment.map(a => {
+            const leaderId = leaderIds[a.leader];
+            const civId = civIds[a.civ];
+            if (!leaderId || !civId) {
+                throw new Error(`No game ID mapping for "${!leaderId ? a.leader : a.civ}" — add it to ${!leaderId ? "leaderIds" : "civIds"}.`);
+            }
+            return `${a.role}:${leaderId}:${civId}`;
+        });
         return ["C7L1", "ANTIQUITY", ...entries].join(";");
     }
 
     function copyModCode() {
-        const code = buildLoadoutCode();
+        let code;
+        try {
+            code = buildLoadoutCode();
+        } catch (err) {
+            showError(err.message);
+            return;
+        }
         const done = () => {
             const btn = document.getElementById("copy-mod-code");
             if (btn) {
@@ -694,7 +706,9 @@
         box.style.display = "block";
         box.focus();
         box.select();
-        try { document.execCommand("copy"); done(); } catch (e) { /* user copies manually */ }
+        try {
+            if (document.execCommand("copy")) done();
+        } catch (e) { /* box stays visible; user copies manually */ }
     }
 
     let playerCount = 1; // Start with one human player

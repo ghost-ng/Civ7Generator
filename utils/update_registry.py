@@ -42,6 +42,11 @@ STATIC_PACKS = [
 ]
 FREE_LEADERS = ["Tecumseh", "Gilgamesh", "Alexander the Great"]  # Tecumseh: pack; rest: free updates
 
+# 2K's own age breadcrumbs are occasionally wrong; override by normalized name.
+AGE_OVERRIDES = {
+    "assyria": "Antiquity",  # 2K labels it Exploration; it's an Antiquity civ
+}
+
 # Display-name differences between 2K's pages and the app's names.
 ALIASES = {
     "persia": "achaemenid persia",
@@ -100,42 +105,75 @@ def parse_civs(page: str) -> list[dict]:
         name = name.strip()
         if name and norm(name) not in seen:
             seen.add(norm(name))
-            civs.append({"name": name, "age": age})
+            civs.append({"name": name, "age": AGE_OVERRIDES.get(norm(name), age)})
     for name in plain:
         name = name.strip()
         if name and norm(name) not in seen:
             seen.add(norm(name))
-            civs.append({"name": name, "age": None})
+            civs.append({"name": name, "age": AGE_OVERRIDES.get(norm(name))})
     return civs
+
+
+# Words that never appear inside a civ/leader name on the collections page;
+# their presence marks list-capture overrun into surrounding copy.
+_ITEM_SENTINELS = ("collection", "includes", "wonder", "steam", "epic", "available",
+                   "buy", "purchase", "edition", "content")
+
+
+def _clean_items(raw: str, declared_count: int, label: str) -> list[str]:
+    """Split a scraped 'A, B, C and D' list, drop overrun junk, honor the
+    declared count, and warn loudly when they disagree."""
+    items = []
+    for part in re.split(r",| and ", raw):
+        part = part.strip(" .")
+        # Overrun copy glued to the last real item ("Iceland Available now: ...")
+        # — truncate at the first sentinel word to recover the name.
+        tokens = part.split()
+        for i, tok in enumerate(tokens):
+            if any(s in tok.lower() for s in _ITEM_SENTINELS) or ":" in tok:
+                tokens = tokens[:i]
+                break
+        part = " ".join(tokens)
+        if not part or len(tokens) > 4:
+            continue
+        items.append(part)
+    items = items[:declared_count]
+    if len(items) != declared_count:
+        print(f"WARNING: {label}: expected {declared_count} items, kept {len(items)} "
+              f"from {raw[:120]!r} — page copy may have changed", file=sys.stderr)
+    return items
 
 
 def parse_collections(page: str) -> list[dict]:
     """Each collection body reads: '<Name> Collection includes: N new leaders: A, B
-    N new civilizations: C, D ...' (after tag/entity stripping)."""
+    N new civilizations: C, D ...' (after tag/entity stripping). List capture is
+    anchored on the declared counts so surrounding copy can't bleed in."""
     text = re.sub(r"<[^>]+>", " ", html.unescape(page))
     text = re.sub(r"\s+", " ", text)
     collections = []
     seen = set()
-    for m in re.finditer(
-        r'([A-Z][\w&\' ]+? Collection)\*? includes: (.*?)(?=[A-Z][\w&\' ]+? Collection\*? includes:|$)',
-        text,
-    ):
-        name, body = m.group(1).strip(), m.group(2)
+    matches = list(re.finditer(r"([A-Z][\w&' ]+? Collection)\*? includes:", text))
+    for i, m in enumerate(matches):
         # The greedy prefix can swallow earlier page text ending in "Collection";
         # keep only the final "<Words> Collection" phrase.
-        name = re.sub(r"^.*Collection\s+(?=[A-Z])", "", name).strip()
+        name = re.sub(r"^.*Collection\s+(?=[A-Z])", "", m.group(1).strip()).strip()
         if pack_norm(name) in seen:
             continue
-        seen.add(pack_norm(name))
-        leaders_m = re.search(r'leaders?: ([^:]+?)(?: \d+ new|$)', body)
-        civs_m = re.search(r'civilizations?: ([^:]+?)(?: \d+ new|$)', body)
-        split = lambda s: [x.strip() for x in re.split(r",| and ", s) if x.strip()] if s else []
+        # Bound the body at the next collection heading so a section without its
+        # own lists can't capture a neighbor's.
+        end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
+        body = text[m.end():end]
+        leaders_m = re.search(r"(\d+) new (?:playable )?leaders?: (.*?)(?= \d+ new |$)", body)
+        civs_m = re.search(r"(\d+) new (?:playable )?civilizations?: (.*?)(?= \d+ new |$)", body)
         entry = {
             "name": name,
-            "leaders": split(leaders_m.group(1)) if leaders_m else [],
-            "civs": split(civs_m.group(1)) if civs_m else [],
+            "leaders": _clean_items(leaders_m.group(2), int(leaders_m.group(1)),
+                                    f"{name} leaders") if leaders_m else [],
+            "civs": _clean_items(civs_m.group(2), int(civs_m.group(1)),
+                                 f"{name} civs") if civs_m else [],
         }
         if entry["leaders"] or entry["civs"]:
+            seen.add(pack_norm(name))
             collections.append(entry)
     return collections
 
@@ -202,11 +240,17 @@ def drift_report(registry: dict, app: dict) -> list[str]:
     app_civs = {norm(c) for c in app["civs"]}
     app_leaders = {norm(l) for l in app["leaders"]}
 
-    # The app currently ships Antiquity civs only.
+    # The app currently ships Antiquity civs only. Civs with no reliable age
+    # label (missing breadcrumb) are included with a caveat rather than
+    # silently skipped — 2K's age labels have been wrong before (see
+    # AGE_OVERRIDES), so err toward flagging.
     for civ in registry["civs"]:
-        if civ["age"] == "Antiquity" and norm(civ["name"]) not in app_civs:
+        if civ["age"] not in ("Antiquity", None):
+            continue
+        if norm(civ["name"]) not in app_civs:
+            caveat = " — age unknown, verify" if civ["age"] is None else ""
             lines.append(f"- Antiquity civ missing from app civList: **{civ['name']}**"
-                         + (f" (from {civ['dlc']})" if civ["dlc"] else " (base game)"))
+                         + (f" (from {civ['dlc']})" if civ["dlc"] else " (base game)") + caveat)
 
     for leader in registry["leaders"]:
         if norm(leader["name"]) not in app_leaders:
@@ -217,12 +261,17 @@ def drift_report(registry: dict, app: dict) -> list[str]:
     app_pack_names = {pack_norm(p["name"]) for p in app["packs"]}
     app_pack_items = {norm(i) for p in app["packs"] for i in p["civs"] + p["leaders"]}
     for coll in registry["collections"]:
-        if pack_norm(coll["name"]) not in app_pack_names:
+        coll_norm = pack_norm(coll["name"])
+        # Substring match tolerates a scraper-mangled registry name (e.g. a
+        # stolen leading word) still containing the app's pack name.
+        if not any(ap == coll_norm or ap in coll_norm for ap in app_pack_names):
             lines.append(f"- DLC collection missing from app dlcPacks: **{coll['name']}**")
-        else:
-            for item in coll["leaders"]:
-                if norm(item) not in app_pack_items and norm(item) in app_leaders:
-                    lines.append(f"- {coll['name']}: leader **{item}** is in the app but not "
+            continue
+        for kind, items, app_known in (("leader", coll["leaders"], app_leaders),
+                                       ("civ", coll["civs"], app_civs)):
+            for item in items:
+                if norm(item) not in app_pack_items and norm(item) in app_known:
+                    lines.append(f"- {coll['name']}: {kind} **{item}** is in the app but not "
                                  f"mapped to this pack in dlcPacks")
     return lines
 
@@ -261,6 +310,15 @@ def main() -> int:
         print("registry.json unchanged")
 
     app = parse_app_data((root / "index.html").read_text(encoding="utf-8"))
+    # Mirror the scrape-side sanity check: if index.html was reformatted and the
+    # regexes silently missed, fail the run instead of filing a bogus
+    # everything-is-missing drift report.
+    if len(app["civs"]) < 10 or len(app["leaders"]) < 15 or len(app["packs"]) < 4:
+        print(f"ERROR: index.html parse sanity check failed: {len(app['civs'])} civs, "
+              f"{len(app['leaders'])} leaders, {len(app['packs'])} packs — "
+              "parse_app_data's regexes no longer match the file's formatting.",
+              file=sys.stderr)
+        return 1
     lines = drift_report(registry, app)
     if lines:
         report = ("## Civ VII registry drift\n\n"

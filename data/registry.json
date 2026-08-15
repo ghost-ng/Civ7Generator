@@ -1,11 +1,16 @@
 {
-  "generatedAt": "2026-08-15T16:38:59+00:00",
+  "generatedAt": "2026-08-15T17:23:35+00:00",
   "source": "https://civilization.2k.com/civ-vii",
   "civs": [
     {
       "name": "Aksum",
       "age": "Antiquity",
       "dlc": null
+    },
+    {
+      "name": "Assyria",
+      "age": "Antiquity",
+      "dlc": "Right to Rule Collection"
     },
     {
       "name": "Carthage",
@@ -76,11 +81,6 @@
       "name": "Abbasid",
       "age": "Exploration",
       "dlc": null
-    },
-    {
-      "name": "Assyria",
-      "age": "Exploration",
-      "dlc": "Right to Rule Collection"
     },
     {
       "name": "Bulgaria",

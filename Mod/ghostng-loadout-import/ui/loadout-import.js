@@ -37,21 +37,26 @@ function domainContains(parameter, id) {
     if (!values) {
         return false; // no domain info — treat as unavailable rather than guessing
     }
-    return values.some(v => valueToString(v.value) === id && (v.invalidReason === undefined || v.invalidReason === "Valid" || v.invalidReason === 0));
+    // invalidReason carries the engine's GameSetupDomainValueInvalidReason enum;
+    // compare against it like shipped setup code does. If the enum global is
+    // somehow absent, accept rather than reject everything.
+    const validReason = typeof GameSetupDomainValueInvalidReason !== "undefined"
+        ? GameSetupDomainValueInvalidReason.Valid
+        : undefined;
+    return values.some(v => valueToString(v.value) === id
+        && (validReason === undefined || v.invalidReason == validReason));
 }
 
 function setSlotAsParticipant(playerId, isHuman) {
-    const config = Configuration.getPlayer(playerId);
-    const wantedStatus = isHuman ? SlotStatus.SS_TAKEN : SlotStatus.SS_COMPUTER;
-    if (config.slotStatus !== wantedStatus) {
-        const edit = Configuration.editPlayer(playerId);
-        if (edit) {
-            // Local player slot is already taken; only flip open/closed slots to AI.
-            if (!isHuman) {
-                edit.setSlotStatus(SlotStatus.SS_COMPUTER);
-            }
-            edit.setAsMajorCiv();
+    // Match the engine idiom (game-parameters-model.js): setSlotStatus and
+    // setAsMajorCiv are always paired. The local player's slot is already
+    // taken, so only AI slots get a status change.
+    const edit = Configuration.editPlayer(playerId);
+    if (edit) {
+        if (!isHuman) {
+            edit.setSlotStatus(SlotStatus.SS_COMPUTER);
         }
+        edit.setAsMajorCiv();
     }
 }
 
@@ -151,7 +156,7 @@ function buildPanel() {
         <div class="loadout-import__body">
             <div class="loadout-import__title">Civ7 Randomizer</div>
             <div class="loadout-import__hint">Paste your loadout code (Ctrl+V), then Apply.</div>
-            <fxs-textbox class="loadout-import__input" placeholder="C7L1;ANTIQUITY;H:AMINA:ROME;..."></fxs-textbox>
+            <fxs-textbox class="loadout-import__input" enabled="true" placeholder="C7L1;ANTIQUITY;H:AMINA:ROME;..."></fxs-textbox>
             <div class="loadout-import__apply" role="button" tabindex="-1">Apply</div>
             <div class="loadout-import__status"></div>
         </div>`;

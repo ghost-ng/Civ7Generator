@@ -39,24 +39,25 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          # Label-based lookup: unlike issue search, label listing is
+          # read-after-write consistent, so back-to-back runs can't race into
+          # creating duplicate issues.
+          gh label create registry-drift --color C3A05D \
+            --description "App content data is behind the official Civ VII pages" --force
           TITLE="Civ VII registry drift: app data is out of date"
-          BODY_FILE=drift-report.md
-          EXISTING=$(gh issue list --state open --search "in:title \"$TITLE\"" --json number --jq '.[0].number')
+          EXISTING=$(gh issue list --state open --label registry-drift --json number --jq '.[0].number')
           if [ -n "$EXISTING" ]; then
-            gh issue comment "$EXISTING" --body-file "$BODY_FILE"
+            gh issue comment "$EXISTING" --body-file drift-report.md
             echo "Updated existing issue #$EXISTING"
           else
-            gh issue create --title "$TITLE" --body-file "$BODY_FILE" --label "registry-drift" || \
-            gh issue create --title "$TITLE" --body-file "$BODY_FILE"
+            gh issue create --title "$TITLE" --body-file drift-report.md --label registry-drift
           fi
 
-      - name: Close drift issue when resolved
+      - name: Close drift issues when resolved
         if: ${{ hashFiles('drift-report.md') == '' }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TITLE="Civ VII registry drift: app data is out of date"
-          EXISTING=$(gh issue list --state open --search "in:title \"$TITLE\"" --json number --jq '.[0].number')
-          if [ -n "$EXISTING" ]; then
-            gh issue close "$EXISTING" --comment "Drift resolved: app data now matches the official pages."
-          fi
+          for NUM in $(gh issue list --state open --label registry-drift --json number --jq '.[].number'); do
+            gh issue close "$NUM" --comment "Drift resolved: app data now matches the official pages."
+          done
