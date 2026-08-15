@@ -88,12 +88,12 @@ surprises), eyeball-checkable, no JSON quoting issues, versioned for evolution.
   readonly input), flashes "Copied".
 - A short hint links to the mod's README for how to use the code in-game.
 
-## Import mod (`Mod/ghostng-loadout-import/`)
+## Import mod (`Mod/ghostng-random-civ-generator/`)
 
 ```
 Mod/
-  ghostng-loadout-import/
-    ghostng-loadout-import.modinfo
+  ghostng-random-civ-generator/
+    ghostng-random-civ-generator.modinfo
     ui/
       loadout-import.js      # screen hook + panel + apply logic
       loadout-parse.js       # pure parser/validator (no game APIs — testable)
@@ -103,7 +103,7 @@ Mod/
 
 - `.modinfo`: shell-scope ActionGroup, `AlwaysMet` criteria, `UIScripts` for the
   JS, `ImportFiles` for the CSS, `LoadOrder` 100, `AffectsSavedGames=0`,
-  dependency on `core`. Mod id `ghostng-loadout-import` (prefix convention, not
+  dependency on `core`. Mod id `ghostng-random-civ-generator` (prefix convention, not
   reverse-DNS).
 - `loadout-import.js`:
   - hooks the screen via the framework's official decorator API —
@@ -120,10 +120,12 @@ Mod/
       `.setSlotStatus(SS_COMPUTER)` + `.setAsMajorCiv()` when the slot isn't
       already a participant, then parameter writes.
     - each slot: `PlayerLeader` first, `PlayerCivilization` second.
-  - Status line reports applied/skipped counts; never throws into game code.
-- Failure modes: bad magic → "not a randomizer code"; unknown token → listed and
-  skipped; more players than max supported slots → extra entries reported and
-  dropped.
+  - Status line reports applied/randomized counts; never throws into game code.
+- Failure modes: bad magic → "not a randomizer code"; leader/civ not present in
+  the player's game (unowned DLC, unknown/future ID) → that piece falls back to
+  RANDOM so the slot layout still matches the code, and the status line lists
+  what was missing by name; more players than max supported slots → extra
+  entries reported and dropped.
 - v1 scope: single-player Create Game screen only. MP staging is architecturally
   separate; documented as future work.
 
@@ -141,7 +143,7 @@ Mod/
 
 1. Install "Sid Meier's Civilization VII Development Tools" (Steam → Library →
    Tools).
-2. Copy `Mod/ghostng-loadout-import/` into
+2. Copy `Mod/ghostng-random-civ-generator/` into
    `%LOCALAPPDATA%\Firaxis Games\Sid Meier's Civilization VII\Mods\` and verify
    in-game first.
 3. Run the Steam Workshop Uploader from the SDK, point it at the mod folder,

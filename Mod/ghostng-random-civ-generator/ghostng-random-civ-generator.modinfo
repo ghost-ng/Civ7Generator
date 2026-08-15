@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Mod id="ghostng-loadout-import" version="1" xmlns="ModInfo">
+<Mod id="ghostng-random-civ-generator" version="1" xmlns="ModInfo">
 	<Properties>
-		<Name>Randomizer Loadout Import</Name>
-		<Description>Paste a loadout code from the Civ7 Randomizer web app into the Create Game screen to apply its civ and leader assignments for you and the AI players.</Description>
+		<Name>Ghosts Random Civ Generator</Name>
+		<Description>Paste a loadout code from the Ghosts Random Civ Generator web app into the Create Game screen to apply its civ and leader assignments for you and the AI players. Content missing from your game is randomized instead.</Description>
 		<Authors>ghost-ng</Authors>
 		<Package>Mod</Package>
 		<AffectsSavedGames>0</AffectsSavedGames>

@@ -10,10 +10,10 @@
  * The OS clipboard is not readable from the game UI, so the user pastes
  * (Ctrl+V) into an fxs-textbox and clicks Apply.
  */
-import { parseLoadoutCode } from "/ghostng-loadout-import/ui/loadout-parse.js";
+import { parseLoadoutCode } from "/ghostng-random-civ-generator/ui/loadout-parse.js";
 
-const PANEL_ID = "ghostng-loadout-import-panel";
-const CSS_URL = "fs://game/ghostng-loadout-import/ui/loadout-import.css";
+const PANEL_ID = "ghostng-random-civ-generator-panel";
+const CSS_URL = "fs://game/ghostng-random-civ-generator/ui/loadout-import.css";
 
 function ensureStylesheet() {
     if (!document.querySelector(`link[href="${CSS_URL}"]`)) {
@@ -100,28 +100,34 @@ function applyLoadout(code) {
         assignments.push({ playerId: nextId, entry, isHuman: false });
     }
 
+    // Strip the internal prefix for human-readable status messages.
+    const pretty = (id) => id.replace(/^LEADER_|^CIVILIZATION_/, "").replace(/_/g, " ");
+
     let applied = 0;
-    const skipped = [];
+    const randomized = [];
     for (const { playerId, entry, isHuman } of assignments) {
         setSlotAsParticipant(playerId, isHuman);
 
         // Leader first: the civ domain is filtered by the current leader + age.
+        // Content missing from this game (unowned DLC, unknown/future IDs)
+        // falls back to RANDOM so the slot layout still matches the code.
         const leaderParam = GameSetup.findPlayerParameter(playerId, "PlayerLeader");
-        if (!domainContains(leaderParam, entry.leader)) {
-            skipped.push(`${entry.leader} (not available — DLC not owned or invalid)`);
-            continue;
+        const leaderOk = domainContains(leaderParam, entry.leader);
+        GameSetup.setPlayerParameterValue(playerId, "PlayerLeader", leaderOk ? entry.leader : "RANDOM");
+        if (!leaderOk) {
+            randomized.push(pretty(entry.leader));
         }
-        GameSetup.setPlayerParameterValue(playerId, "PlayerLeader", entry.leader);
 
         const civParam = GameSetup.findPlayerParameter(playerId, "PlayerCivilization");
-        if (!domainContains(civParam, entry.civ)) {
-            skipped.push(`${entry.civ} (not available for ${entry.leader})`);
-            // Leave the slot on its leader with a random civ rather than half-undoing.
-            GameSetup.setPlayerParameterValue(playerId, "PlayerCivilization", "RANDOM");
-            continue;
+        const civOk = domainContains(civParam, entry.civ);
+        GameSetup.setPlayerParameterValue(playerId, "PlayerCivilization", civOk ? entry.civ : "RANDOM");
+        if (!civOk) {
+            randomized.push(pretty(entry.civ));
         }
-        GameSetup.setPlayerParameterValue(playerId, "PlayerCivilization", entry.civ);
-        applied++;
+
+        if (leaderOk && civOk) {
+            applied++;
+        }
     }
 
     // Close surplus AI slots so the game matches the pasted config exactly.
@@ -138,8 +144,8 @@ function applyLoadout(code) {
     }
 
     let message = `Applied ${applied}/${parsed.players.length} picks.`;
-    if (skipped.length > 0) {
-        message += ` Skipped: ${skipped.join(", ")}.`;
+    if (randomized.length > 0) {
+        message += ` Not in your game, randomized instead: ${randomized.join(", ")}.`;
     }
     if (notes.length > 0) {
         message += ` ${notes.join(" ")}`;
@@ -154,7 +160,7 @@ function buildPanel() {
     panel.innerHTML = `
         <div class="loadout-import__tab" role="button" tabindex="-1">Import Loadout</div>
         <div class="loadout-import__body">
-            <div class="loadout-import__title">Civ7 Randomizer</div>
+            <div class="loadout-import__title">Ghosts Random Civ Generator</div>
             <div class="loadout-import__hint">Paste your loadout code (Ctrl+V), then Apply.</div>
             <fxs-textbox class="loadout-import__input" enabled="true" placeholder="C7L1;ANTIQUITY;H:AMINA:ROME;..."></fxs-textbox>
             <div class="loadout-import__apply" role="button" tabindex="-1">Apply</div>

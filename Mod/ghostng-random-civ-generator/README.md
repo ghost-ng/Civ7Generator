@@ -1,4 +1,4 @@
-# Randomizer Loadout Import
+# Ghosts Random Civ Generator (Mod)
 
 A Civilization VII UI mod that applies a loadout code from the
 [Civ7 Randomizer web app](https://ghost-ng.github.io/Civ7Generator/) to the
@@ -17,7 +17,7 @@ skipped by name; everything else still applies.
 
 ## Installing locally (for testing)
 
-Copy this whole folder (`ghostng-loadout-import/`) into:
+Copy this whole folder (`ghostng-random-civ-generator/`) into:
 
 - Windows: `%LOCALAPPDATA%\Firaxis Games\Sid Meier's Civilization VII\Mods\`
 - macOS: `~/Library/Application Support/Civilization VII/Mods/`
