@@ -215,6 +215,22 @@
         .switch:checked::before { left: 23px; background: var(--brass-bright); }
 
         /* ---------- DLC multi-select ---------- */
+        .dlc-mode-row { margin-bottom: 12px; gap: 10px; }
+        .dlc-mode-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--slate);
+            cursor: pointer;
+            user-select: none;
+            transition: color 0.15s ease;
+        }
+        .dlc-mode-label.active { color: var(--brass-bright); }
+        /* Mode switch: both positions are valid modes, so the track stays neutral */
+        #dlc-mode:checked { background: rgba(9, 14, 24, 0.85); }
+        #dlc-mode::before { background: var(--brass-bright); }
+
         .dlc-select summary {
             list-style: none;
             width: 100%;
@@ -263,6 +279,9 @@
         .dlc-option input[type="checkbox"]:checked {
             background: rgba(195, 160, 93, 0.25);
             border-color: var(--brass-bright);
+        }
+        .dlc-select.keep-mode .dlc-option input[type="checkbox"]:checked::before {
+            content: "\2713";
         }
         .dlc-option input[type="checkbox"]:checked::before {
             content: "\00d7";
@@ -417,6 +436,12 @@
 
             <!-- DLC Content -->
             <div class="section-label">DLC Content</div>
+            <div class="toggle-row dlc-mode-row">
+                <span class="dlc-mode-label active" id="dlc-mode-label-remove">Remove</span>
+                <input class="switch" type="checkbox" id="dlc-mode" aria-label="Toggle between removing checked DLC and keeping only checked DLC">
+                <span class="dlc-mode-label" id="dlc-mode-label-keep">Keep only</span>
+                <span class="toggle-hint" id="dlc-mode-hint">— checked packs are excluded</span>
+            </div>
             <details class="dlc-select" id="dlc-select">
                 <summary id="dlc-summary">No DLC removed</summary>
                 <div class="dlc-options" id="dlc-options"></div>
@@ -519,15 +544,44 @@
         container.addEventListener("change", updateDlcSummary);
     }
 
+    function isKeepMode() {
+        return document.getElementById("dlc-mode").checked;
+    }
+
+    // In Remove mode checked packs are excluded; in Keep-only mode checked
+    // packs are the only DLC included, so the unchecked ones are excluded.
+    // Base-game content is not a pack and survives both modes.
     function getExcludedPacks() {
         const checkedIds = [...document.querySelectorAll(".dlc-exclude:checked")].map(cb => cb.value);
-        return dlcPacks.filter(pack => checkedIds.includes(pack.id));
+        return isKeepMode()
+            ? dlcPacks.filter(pack => !checkedIds.includes(pack.id))
+            : dlcPacks.filter(pack => checkedIds.includes(pack.id));
     }
 
     function updateDlcSummary() {
-        const count = getExcludedPacks().length;
-        document.getElementById("dlc-summary").textContent =
-            count === 0 ? "No DLC removed" : `${count} DLC pack${count > 1 ? "s" : ""} removed`;
+        const checkedCount = document.querySelectorAll(".dlc-exclude:checked").length;
+        let text;
+        if (isKeepMode()) {
+            text = checkedCount === dlcPacks.length ? "All DLC kept"
+                 : checkedCount === 0 ? "Base game only"
+                 : `Keeping ${checkedCount} DLC pack${checkedCount > 1 ? "s" : ""}`;
+        } else {
+            text = checkedCount === 0 ? "No DLC removed"
+                 : checkedCount === dlcPacks.length ? "All DLC removed"
+                 : `${checkedCount} DLC pack${checkedCount > 1 ? "s" : ""} removed`;
+        }
+        document.getElementById("dlc-summary").textContent = text;
+    }
+
+    function updateDlcMode() {
+        const keep = isKeepMode();
+        document.getElementById("dlc-select").classList.toggle("keep-mode", keep);
+        document.getElementById("dlc-mode-label-remove").classList.toggle("active", !keep);
+        document.getElementById("dlc-mode-label-keep").classList.toggle("active", keep);
+        document.getElementById("dlc-mode-hint").textContent = keep
+            ? "— only checked packs are included"
+            : "— checked packs are excluded";
+        updateDlcSummary();
     }
 
     function getActiveCivs() {
@@ -541,6 +595,17 @@
     }
 
     buildDlcOptions();
+
+    document.getElementById("dlc-mode").addEventListener("change", updateDlcMode);
+    // The mode words act as buttons: clicking one selects that mode
+    document.getElementById("dlc-mode-label-remove").addEventListener("click", () => {
+        document.getElementById("dlc-mode").checked = false;
+        updateDlcMode();
+    });
+    document.getElementById("dlc-mode-label-keep").addEventListener("click", () => {
+        document.getElementById("dlc-mode").checked = true;
+        updateDlcMode();
+    });
 
     let playerCount = 1; // Start with one human player
 
