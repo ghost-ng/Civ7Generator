@@ -126,8 +126,13 @@ Mod/
   RANDOM so the slot layout still matches the code, and the status line lists
   what was missing by name; more players than max supported slots → extra
   entries reported and dropped.
-- v1 scope: single-player Create Game screen only. MP staging is architecturally
-  separate; documented as future work.
+- Scope (revised per user direction 2026-08-15): **multiplayer lobby only**
+  (`screen-mp-lobby` via `Controls.decorate`), since that's where a shared
+  random assignment matters. Each client applies its own H entry — seat order
+  among human players maps to the code's H rows (1st human = Player 1) — and
+  the host additionally applies A entries to AI slots (adding/closing slots to
+  match) and the Age. The panel is removed in the decorator's `beforeDetach`
+  so backing out of the lobby doesn't leave it behind.
 
 ## Testing
 

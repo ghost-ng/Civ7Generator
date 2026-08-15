@@ -1,11 +1,14 @@
 /**
- * Randomizer Loadout Import — shell UI script.
+ * Ghosts Random Civ Generator — shell UI script.
  *
- * Watches for the single-player Create Game screen (the <create-game-sp>
- * element) and injects a small overlay panel with a paste box. Applying a code
- * writes selections through the GameSetup parameter layer, the same path the
- * game's own setup screens use, so the UI models (which poll
- * GameSetup.currentRevision) pick the changes up on their own.
+ * Adds an "Import Code" panel to the multiplayer lobby (screen-mp-lobby),
+ * where civs and leaders are configured. Every player pastes the same
+ * generator code:
+ *   - Each human applies the H entry matching their seat order among human
+ *     players (1st human in the lobby = 1st H entry = "Player 1" in the app).
+ *   - The host additionally applies the A entries to AI slots.
+ * Selections are written through the GameSetup parameter layer — the same
+ * path the lobby's own dropdowns use — so they replicate to all clients.
  *
  * The OS clipboard is not readable from the game UI, so the user pastes
  * (Ctrl+V) into an fxs-textbox and clicks Apply.
@@ -47,17 +50,34 @@ function domainContains(parameter, id) {
         && (validReason === undefined || v.invalidReason == validReason));
 }
 
-function setSlotAsParticipant(playerId, isHuman) {
-    // Match the engine idiom (game-parameters-model.js): setSlotStatus and
-    // setAsMajorCiv are always paired. The local player's slot is already
-    // taken, so only AI slots get a status change.
-    const edit = Configuration.editPlayer(playerId);
-    if (edit) {
-        if (!isHuman) {
-            edit.setSlotStatus(SlotStatus.SS_COMPUTER);
-        }
-        edit.setAsMajorCiv();
+/** Strip the internal prefix for human-readable status messages. */
+function pretty(id) {
+    return id.replace(/^LEADER_|^CIVILIZATION_/, "").replace(/_/g, " ");
+}
+
+/**
+ * Write one entry's leader+civ to a slot. Leader first — the civ domain is
+ * filtered by leader + age. Content missing from this game (unowned DLC,
+ * unknown/future IDs) falls back to RANDOM. Returns names that were missing.
+ */
+function applyEntryToSlot(playerId, entry) {
+    const missing = [];
+
+    const leaderParam = GameSetup.findPlayerParameter(playerId, "PlayerLeader");
+    const leaderOk = domainContains(leaderParam, entry.leader);
+    GameSetup.setPlayerParameterValue(playerId, "PlayerLeader", leaderOk ? entry.leader : "RANDOM");
+    if (!leaderOk) {
+        missing.push(pretty(entry.leader));
     }
+
+    const civParam = GameSetup.findPlayerParameter(playerId, "PlayerCivilization");
+    const civOk = domainContains(civParam, entry.civ);
+    GameSetup.setPlayerParameterValue(playerId, "PlayerCivilization", civOk ? entry.civ : "RANDOM");
+    if (!civOk) {
+        missing.push(pretty(entry.civ));
+    }
+
+    return missing;
 }
 
 function applyGeneratorCode(code) {
@@ -66,89 +86,88 @@ function applyGeneratorCode(code) {
         return { ok: false, message: parsed.error };
     }
 
-    const notes = [];
-
-    // Age: set only if it differs, so we don't churn the setup needlessly.
-    const ageParam = GameSetup.findGameParameter("Age");
-    if (ageParam) {
-        const currentAge = valueToString(ageParam.value?.value ?? ageParam.value);
-        if (currentAge !== parsed.age) {
-            GameSetup.setGameParameterValue("Age", parsed.age);
-            notes.push(`Age set to ${parsed.age}.`);
-        }
-    }
-
     const localId = GameContext.localPlayerID;
+    const isHost = Network.getHostPlayerId() === localId;
     const maxPlayers = Configuration.getMap().maxMajorPlayers;
+    const notes = [];
+    const missing = [];
 
-    // Order the config: first human entry -> local player slot, everything else
-    // (extra humans become AI in single player) -> other slots in order.
-    const entries = [...parsed.players];
-    const firstHumanIdx = entries.findIndex(p => p.role === "H");
-    const [localEntry] = entries.splice(firstHumanIdx, 1);
-
-    const assignments = [{ playerId: localId, entry: localEntry, isHuman: true }];
-    let nextId = 0;
-    for (const entry of entries) {
-        while (nextId === localId || assignments.some(a => a.playerId === nextId)) {
-            nextId++;
+    // Age is a game parameter — host-owned. Only touch it when it differs.
+    if (isHost) {
+        const ageParam = GameSetup.findGameParameter("Age");
+        if (ageParam) {
+            const currentAge = valueToString(ageParam.value?.value ?? ageParam.value);
+            if (currentAge !== parsed.age) {
+                GameSetup.setGameParameterValue("Age", parsed.age);
+                notes.push(`Age set to ${parsed.age}.`);
+            }
         }
-        if (nextId >= maxPlayers) {
-            notes.push(`Dropped ${entry.leader} / ${entry.civ}: map supports ${maxPlayers} players.`);
-            continue;
-        }
-        assignments.push({ playerId: nextId, entry, isHuman: false });
     }
 
-    // Strip the internal prefix for human-readable status messages.
-    const pretty = (id) => id.replace(/^LEADER_|^CIVILIZATION_/, "").replace(/_/g, " ");
-
-    let applied = 0;
-    const randomized = [];
-    for (const { playerId, entry, isHuman } of assignments) {
-        setSlotAsParticipant(playerId, isHuman);
-
-        // Leader first: the civ domain is filtered by the current leader + age.
-        // Content missing from this game (unowned DLC, unknown/future IDs)
-        // falls back to RANDOM so the slot layout still matches the code.
-        const leaderParam = GameSetup.findPlayerParameter(playerId, "PlayerLeader");
-        const leaderOk = domainContains(leaderParam, entry.leader);
-        GameSetup.setPlayerParameterValue(playerId, "PlayerLeader", leaderOk ? entry.leader : "RANDOM");
-        if (!leaderOk) {
-            randomized.push(pretty(entry.leader));
+    // Seat order: nth human in the lobby (ascending playerId) takes the nth
+    // H entry — "Player 1" in the web app is the first human seat (the host).
+    const humanIds = [];
+    const aiIds = [];
+    const openIds = [];
+    for (let id = 0; id < maxPlayers; id++) {
+        const config = Configuration.getPlayer(id);
+        if (config.isParticipant && config.isHuman) {
+            humanIds.push(id);
+        } else if (config.slotStatus === SlotStatus.SS_COMPUTER) {
+            aiIds.push(id);
+        } else if (config.slotStatus === SlotStatus.SS_OPEN || config.slotStatus === SlotStatus.SS_CLOSED) {
+            openIds.push(id);
         }
+    }
 
-        const civParam = GameSetup.findPlayerParameter(playerId, "PlayerCivilization");
-        const civOk = domainContains(civParam, entry.civ);
-        GameSetup.setPlayerParameterValue(playerId, "PlayerCivilization", civOk ? entry.civ : "RANDOM");
-        if (!civOk) {
-            randomized.push(pretty(entry.civ));
-        }
+    const hEntries = parsed.players.filter(p => p.role === "H");
+    const aEntries = parsed.players.filter(p => p.role === "A");
 
-        if (leaderOk && civOk) {
+    // Apply the local player's own row.
+    const seat = humanIds.indexOf(localId);
+    if (seat === -1) {
+        return { ok: false, message: "Couldn't find your player slot in this lobby." };
+    }
+    if (seat >= hEntries.length) {
+        notes.push(`The code has ${hEntries.length} human row${hEntries.length === 1 ? "" : "s"} but you are human #${seat + 1} — your picks stay unchanged.`);
+    } else {
+        const entry = hEntries[seat];
+        missing.push(...applyEntryToSlot(localId, entry));
+        notes.push(`You are human #${seat + 1}: ${pretty(entry.leader)} / ${pretty(entry.civ)}.`);
+    }
+
+    // Host also applies AI rows, growing/shrinking AI slots to match the code.
+    if (isHost) {
+        let applied = 0;
+        for (const entry of aEntries) {
+            let slotId = aiIds.shift();
+            if (slotId === undefined) {
+                slotId = openIds.shift();
+                if (slotId === undefined) {
+                    notes.push(`Dropped AI row ${pretty(entry.leader)} / ${pretty(entry.civ)}: no free slots.`);
+                    continue;
+                }
+                const edit = Configuration.editPlayer(slotId);
+                if (edit) {
+                    edit.setSlotStatus(SlotStatus.SS_COMPUTER);
+                    edit.setAsMajorCiv();
+                }
+            }
+            missing.push(...applyEntryToSlot(slotId, entry));
             applied++;
         }
+        // Close surplus AI slots so the lobby matches the code exactly.
+        for (const surplusId of aiIds) {
+            Configuration.editPlayer(surplusId)?.setSlotStatus(SlotStatus.SS_CLOSED);
+        }
+        notes.push(`Applied ${applied} AI slot${applied === 1 ? "" : "s"}.`);
+    } else if (aEntries.length > 0) {
+        notes.push("AI rows are applied by the host — have them paste the code too.");
     }
 
-    // Close surplus AI slots so the game matches the pasted config exactly.
-    const usedIds = new Set(assignments.map(a => a.playerId));
-    for (let id = 0; id < maxPlayers; id++) {
-        if (usedIds.has(id) || id === localId) {
-            continue;
-        }
-        const config = Configuration.getPlayer(id);
-        if (config.slotStatus === SlotStatus.SS_COMPUTER) {
-            const edit = Configuration.editPlayer(id);
-            edit?.setSlotStatus(SlotStatus.SS_CLOSED);
-        }
-    }
-
-    let message = `Applied ${applied}/${parsed.players.length} picks.`;
-    if (randomized.length > 0) {
-        message += ` Not in your game, randomized instead: ${randomized.join(", ")}.`;
-    }
-    if (notes.length > 0) {
-        message += ` ${notes.join(" ")}`;
+    let message = notes.join(" ");
+    if (missing.length > 0) {
+        message += ` Not in your game, randomized instead: ${missing.join(", ")}.`;
     }
     return { ok: true, message };
 }
@@ -161,7 +180,7 @@ function buildPanel() {
         <div class="civgen__tab" role="button" tabindex="-1">Import Code</div>
         <div class="civgen__body">
             <div class="civgen__title">Ghosts Random Civ Generator</div>
-            <div class="civgen__hint">Paste your generator code (Ctrl+V), then Apply.</div>
+            <div class="civgen__hint">Paste your generator code (Ctrl+V), then Apply. Every player pastes the same code.</div>
             <fxs-textbox class="civgen__input" enabled="true" placeholder="C7L1;ANTIQUITY;H:AMINA:ROME;..."></fxs-textbox>
             <div class="civgen__apply" role="button" tabindex="-1">Apply</div>
             <div class="civgen__status"></div>
@@ -209,11 +228,10 @@ function injectInto(host) {
 /**
  * Official decorator hook: the framework constructs registered decorators when
  * the named component initializes (component-support.js) and drives the
- * lifecycle methods below. "create-game-sp" is the SP Create Game screen host
- * (registered via defineLegacyComponent -> Controls.define). Same pattern as
- * bz's published UI mods.
+ * lifecycle methods below. "screen-mp-lobby" is the multiplayer lobby, where
+ * players configure their civ/leader. Same pattern as bz's published UI mods.
  */
-class LoadoutImportDecorator {
+class ImportPanelDecorator {
     constructor(component) {
         this.component = component;
         this.Root = component.Root;
@@ -226,11 +244,15 @@ class LoadoutImportDecorator {
             console.error("civgen: failed to inject panel", err);
         }
     }
-    beforeDetach() { }
+    beforeDetach() {
+        // Backing out of the lobby must take the panel with it — screen
+        // elements can be kept around for reuse, so remove explicitly.
+        this.Root.querySelector(`#${PANEL_ID}`)?.remove();
+    }
     afterDetach() { }
     onAttributeChanged(_name, _prev, _next) { }
 }
 
 engine.whenReady.then(() => {
-    Controls.decorate("create-game-sp", (component) => new LoadoutImportDecorator(component));
+    Controls.decorate("screen-mp-lobby", (component) => new ImportPanelDecorator(component));
 });
