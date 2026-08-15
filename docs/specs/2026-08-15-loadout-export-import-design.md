@@ -106,10 +106,13 @@ Mod/
   dependency on `core`. Mod id `ghostng-loadout-import` (prefix convention, not
   reverse-DNS).
 - `loadout-import.js`:
-  - a `MutationObserver` on the document watches for the `create-game-sp`
-    element (the SP setup screen host) and injects a collapsible "Randomizer
-    Import" overlay panel into it: an `fxs-textbox` + Apply button + status
-    line. No prototype patching — the SolidJS screen offers none.
+  - hooks the screen via the framework's official decorator API —
+    `Controls.decorate("create-game-sp", ...)` — which constructs the decorator
+    with the component instance on attach and drives lifecycle methods
+    (verified in `component-support.js:239` and modeled on bz's published UI
+    mods, which use the same pattern). `afterAttach` injects a collapsible
+    "Randomizer Import" overlay panel: an `fxs-textbox` + Apply button +
+    status line. No prototype patching — the SolidJS screen offers none.
   - On Apply: parse → validate every leader/civ against the live
     `GameSetup` domains (report unowned/unknown entries by name) → apply:
     - entry 1 (first `H`): local player (`GameContext.localPlayerID`).

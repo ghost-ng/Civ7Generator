@@ -200,25 +200,31 @@ function injectInto(host) {
     host.appendChild(buildPanel());
 }
 
-function watchForCreateGameScreen() {
-    const existing = document.querySelector("create-game-sp");
-    if (existing) {
-        injectInto(existing);
+/**
+ * Official decorator hook: the framework constructs registered decorators when
+ * the named component initializes (component-support.js) and drives the
+ * lifecycle methods below. "create-game-sp" is the SP Create Game screen host
+ * (registered via defineLegacyComponent -> Controls.define). Same pattern as
+ * bz's published UI mods.
+ */
+class LoadoutImportDecorator {
+    constructor(component) {
+        this.component = component;
+        this.Root = component.Root;
     }
-    const observer = new MutationObserver((mutations) => {
-        for (const mutation of mutations) {
-            for (const node of mutation.addedNodes) {
-                if (node.nodeType !== Node.ELEMENT_NODE) {
-                    continue;
-                }
-                const host = node.matches?.("create-game-sp") ? node : node.querySelector?.("create-game-sp");
-                if (host) {
-                    injectInto(host);
-                }
-            }
+    beforeAttach() { }
+    afterAttach() {
+        try {
+            injectInto(this.Root);
+        } catch (err) {
+            console.error("loadout-import: failed to inject panel", err);
         }
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
+    }
+    beforeDetach() { }
+    afterDetach() { }
+    onAttributeChanged(_name, _prev, _next) { }
 }
 
-engine.whenReady.then(watchForCreateGameScreen);
+engine.whenReady.then(() => {
+    Controls.decorate("create-game-sp", (component) => new LoadoutImportDecorator(component));
+});
