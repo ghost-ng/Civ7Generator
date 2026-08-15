@@ -214,6 +214,70 @@
         .switch:checked { background: rgba(195, 160, 93, 0.25); }
         .switch:checked::before { left: 23px; background: var(--brass-bright); }
 
+        /* ---------- DLC multi-select ---------- */
+        .dlc-select summary {
+            list-style: none;
+            width: 100%;
+            background: rgba(9, 14, 24, 0.85);
+            border: 1px solid rgba(151, 163, 182, 0.28);
+            color: var(--parchment);
+            font-size: 1rem;
+            padding: 10px 40px 10px 14px;
+            cursor: pointer;
+            background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23c3a05d' stroke-width='1.5'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            transition: border-color 0.15s ease;
+        }
+        .dlc-select summary::-webkit-details-marker { display: none; }
+        .dlc-select summary:hover, .dlc-select[open] summary { border-color: var(--brass); }
+        .dlc-select[open] summary {
+            background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 7l5-5 5 5' fill='none' stroke='%23c3a05d' stroke-width='1.5'/%3E%3C/svg%3E");
+        }
+
+        .dlc-options {
+            border: 1px solid rgba(151, 163, 182, 0.28);
+            border-top: none;
+            background: rgba(9, 14, 24, 0.85);
+            padding: 6px 0;
+        }
+        .dlc-option {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            padding: 8px 14px;
+            cursor: pointer;
+        }
+        .dlc-option:hover { background: rgba(195, 160, 93, 0.08); }
+        .dlc-option input[type="checkbox"] {
+            appearance: none;
+            flex-shrink: 0;
+            width: 15px;
+            height: 15px;
+            border: 1px solid var(--brass-dim);
+            background: transparent;
+            cursor: pointer;
+            position: relative;
+            top: 2px;
+        }
+        .dlc-option input[type="checkbox"]:checked {
+            background: rgba(195, 160, 93, 0.25);
+            border-color: var(--brass-bright);
+        }
+        .dlc-option input[type="checkbox"]:checked::before {
+            content: "\00d7";
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--brass-bright);
+            font-size: 0.95rem;
+            line-height: 1;
+        }
+        .dlc-option .dlc-name { color: var(--parchment); }
+        .dlc-option .toggle-hint { display: block; }
+
         .form-error {
             display: none;
             margin-top: 14px;
@@ -351,6 +415,13 @@
                 <option value="8">8 AI Players</option>
             </select>
 
+            <!-- DLC Content -->
+            <div class="section-label">DLC Content</div>
+            <details class="dlc-select" id="dlc-select">
+                <summary id="dlc-summary">No DLC removed</summary>
+                <div class="dlc-options" id="dlc-options"></div>
+            </details>
+
             <!-- Options -->
             <div class="section-label">Options</div>
             <div class="toggle-row">
@@ -424,6 +495,53 @@
         "Yi Sun-sin": "assets/Civ7_Leader_Images/CIV7-CC4-YI_SUN_SIN_PLAIN_V1-NA-STATIC-ENUS-NO_RATING-AGN-644x320-FINAL.jpg"
     };
 
+    // DLC packs that added civs/leaders present in this app. Civs and leaders
+    // from free updates (Gilgamesh, Alexander) count as base and aren't listed.
+    const dlcPacks = [
+        { id: "tecumseh",    name: "Tecumseh & Shawnee Pack",        civs: [],                    leaders: ["Tecumseh"] },
+        { id: "deluxe",      name: "Deluxe Edition Content",         civs: [],                    leaders: ["Friedrich (Baroque)", "Xerxes (The Achaemenid)"] },
+        { id: "founders",    name: "Founder's Edition Content",      civs: [],                    leaders: ["Ashoka (World Conqueror)", "Himiko (High Shaman)"] },
+        { id: "napoleon",    name: "Napoleon (2K Account Rewards)",  civs: [],                    leaders: ["Napoleon (Revolutionary)", "Napoleon (Emperor)"] },
+        { id: "crossroads",  name: "Crossroads of the World",        civs: ["Carthage"],          leaders: ["Ada Lovelace", "Simón Bolívar"] },
+        { id: "righttorule", name: "Right to Rule",                  civs: ["Assyria", "Silla"],  leaders: ["Genghis Khan", "Lakshmibai"] },
+        { id: "tides",       name: "Tides of Power",                 civs: ["Tonga"],             leaders: ["Edward Teach", "Sayyida al Hurra"] },
+        { id: "brushblade",  name: "Brush & Blade",                  civs: ["Heian Japan"],       leaders: ["Toyotomi Hideyoshi", "Yi Sun-sin"] }
+    ];
+
+    function buildDlcOptions() {
+        const container = document.getElementById("dlc-options");
+        container.innerHTML = dlcPacks.map(pack => `
+            <label class="dlc-option">
+                <input type="checkbox" class="dlc-exclude" value="${pack.id}">
+                <span><span class="dlc-name">${pack.name}</span>
+                <span class="toggle-hint">${[...pack.civs, ...pack.leaders].join(", ")}</span></span>
+            </label>`).join("");
+        container.addEventListener("change", updateDlcSummary);
+    }
+
+    function getExcludedPacks() {
+        const checkedIds = [...document.querySelectorAll(".dlc-exclude:checked")].map(cb => cb.value);
+        return dlcPacks.filter(pack => checkedIds.includes(pack.id));
+    }
+
+    function updateDlcSummary() {
+        const count = getExcludedPacks().length;
+        document.getElementById("dlc-summary").textContent =
+            count === 0 ? "No DLC removed" : `${count} DLC pack${count > 1 ? "s" : ""} removed`;
+    }
+
+    function getActiveCivs() {
+        const excludedCivs = getExcludedPacks().flatMap(pack => pack.civs);
+        return civList.filter(civ => !excludedCivs.includes(civ));
+    }
+
+    function getActiveLeaders() {
+        const excludedLeaders = getExcludedPacks().flatMap(pack => pack.leaders);
+        return Object.keys(leaderDict).filter(leader => !excludedLeaders.includes(leader));
+    }
+
+    buildDlcOptions();
+
     let playerCount = 1; // Start with one human player
 
     function addPlayer() {
@@ -451,14 +569,14 @@
 
     function filterLeaders(selectedLeaders, schizophreniaMode) {
         if (!schizophreniaMode) {
-            let filteredLeaders = Object.keys(leaderDict).filter(l => !selectedLeaders.includes(l));
+            let filteredLeaders = getActiveLeaders().filter(l => !selectedLeaders.includes(l));
             selectedLeaders.forEach(leader => {
                 let leaderBaseName = leader.split(" ")[0];
                 filteredLeaders = filteredLeaders.filter(l => !l.startsWith(leaderBaseName));
             });
             return filteredLeaders;
         }
-        return Object.keys(leaderDict).filter(l => !selectedLeaders.includes(l));
+        return getActiveLeaders().filter(l => !selectedLeaders.includes(l));
     }
 
     function showError(message) {
@@ -500,9 +618,14 @@
         let aiPlayers = humansOnly ? 0 : parseInt(document.getElementById("ai-count").value, 10);
         let schizophreniaMode = document.getElementById("schizophrenia-mode").checked;
 
+        let activeCivs = getActiveCivs();
         let totalPlayers = playerNames.length + aiPlayers;
-        if (totalPlayers > civList.length) {
-            showError(`Only ${civList.length} civilizations are available — reduce players or AI (requested ${totalPlayers}).`);
+        if (totalPlayers > activeCivs.length) {
+            showError(`Only ${activeCivs.length} civilizations are available with the current DLC selection — reduce players, AI, or removed DLC (requested ${totalPlayers}).`);
+            return;
+        }
+        if (totalPlayers > getActiveLeaders().length) {
+            showError(`Only ${getActiveLeaders().length} leaders are available with the current DLC selection — reduce players, AI, or removed DLC (requested ${totalPlayers}).`);
             return;
         }
 
@@ -512,7 +635,7 @@
 
         // Assign civilizations and leaders to human players
         playerNames.forEach(player => {
-            let civ = getRandomElement(civList.filter(c => !selectedCivs.includes(c)));
+            let civ = getRandomElement(activeCivs.filter(c => !selectedCivs.includes(c)));
             let leader = getRandomElement(filterLeaders(selectedLeaders, schizophreniaMode));
 
             selectedCivs.push(civ);
@@ -523,7 +646,7 @@
 
         // Assign civilizations and leaders to AI players if AI count > 0
         for (let i = 1; i <= aiPlayers; i++) {
-            let civ = getRandomElement(civList.filter(c => !selectedCivs.includes(c)));
+            let civ = getRandomElement(activeCivs.filter(c => !selectedCivs.includes(c)));
             let leader = getRandomElement(filterLeaders(selectedLeaders, schizophreniaMode));
 
             selectedCivs.push(civ);
