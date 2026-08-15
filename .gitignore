@@ -1,3 +1,5 @@
 # Claude docs
 CLAUDE.md
 .claude/
+drift-report.md
+__pycache__/

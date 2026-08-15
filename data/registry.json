@@ -1,0 +1,454 @@
+{
+  "generatedAt": "2026-08-15T16:38:59+00:00",
+  "source": "https://civilization.2k.com/civ-vii",
+  "civs": [
+    {
+      "name": "Aksum",
+      "age": "Antiquity",
+      "dlc": null
+    },
+    {
+      "name": "Carthage",
+      "age": "Antiquity",
+      "dlc": "Crossroads of the World Collection"
+    },
+    {
+      "name": "Egypt",
+      "age": "Antiquity",
+      "dlc": null
+    },
+    {
+      "name": "Greece",
+      "age": "Antiquity",
+      "dlc": null
+    },
+    {
+      "name": "Han China",
+      "age": "Antiquity",
+      "dlc": null
+    },
+    {
+      "name": "Heian Japan",
+      "age": "Antiquity",
+      "dlc": "Brush and Blade Collection"
+    },
+    {
+      "name": "Khmer",
+      "age": "Antiquity",
+      "dlc": null
+    },
+    {
+      "name": "Maurya",
+      "age": "Antiquity",
+      "dlc": null
+    },
+    {
+      "name": "Maya",
+      "age": "Antiquity",
+      "dlc": null
+    },
+    {
+      "name": "Mississippian",
+      "age": "Antiquity",
+      "dlc": null
+    },
+    {
+      "name": "Persia",
+      "age": "Antiquity",
+      "dlc": null
+    },
+    {
+      "name": "Rome",
+      "age": "Antiquity",
+      "dlc": null
+    },
+    {
+      "name": "Silla",
+      "age": "Antiquity",
+      "dlc": "Right to Rule Collection"
+    },
+    {
+      "name": "Tonga",
+      "age": "Antiquity",
+      "dlc": "Tides of Power Collection"
+    },
+    {
+      "name": "Abbasid",
+      "age": "Exploration",
+      "dlc": null
+    },
+    {
+      "name": "Assyria",
+      "age": "Exploration",
+      "dlc": "Right to Rule Collection"
+    },
+    {
+      "name": "Bulgaria",
+      "age": "Exploration",
+      "dlc": "Crossroads of the World Collection"
+    },
+    {
+      "name": "Chola India",
+      "age": "Exploration",
+      "dlc": null
+    },
+    {
+      "name": "Dai Viet",
+      "age": "Exploration",
+      "dlc": "Right to Rule Collection"
+    },
+    {
+      "name": "Goryeo",
+      "age": "Exploration",
+      "dlc": "Brush and Blade Collection"
+    },
+    {
+      "name": "Hawaii",
+      "age": "Exploration",
+      "dlc": null
+    },
+    {
+      "name": "Iceland",
+      "age": "Exploration",
+      "dlc": "Tides of Power Collection"
+    },
+    {
+      "name": "Inca",
+      "age": "Exploration",
+      "dlc": null
+    },
+    {
+      "name": "Majapahit",
+      "age": "Exploration",
+      "dlc": null
+    },
+    {
+      "name": "Ming China",
+      "age": "Exploration",
+      "dlc": null
+    },
+    {
+      "name": "Norman",
+      "age": "Exploration",
+      "dlc": null
+    },
+    {
+      "name": "Republic of Pirates",
+      "age": "Exploration",
+      "dlc": "Tides of Power Collection"
+    },
+    {
+      "name": "Sengoku",
+      "age": "Exploration",
+      "dlc": "Brush and Blade Collection"
+    },
+    {
+      "name": "Shawnee",
+      "age": "Exploration",
+      "dlc": "Tecumseh & Shawnee Pack"
+    },
+    {
+      "name": "Songhai",
+      "age": "Exploration",
+      "dlc": null
+    },
+    {
+      "name": "Spain",
+      "age": "Exploration",
+      "dlc": null
+    },
+    {
+      "name": "America",
+      "age": "Modern",
+      "dlc": null
+    },
+    {
+      "name": "Buganda",
+      "age": "Modern",
+      "dlc": null
+    },
+    {
+      "name": "French Empire",
+      "age": "Modern",
+      "dlc": null
+    },
+    {
+      "name": "Great Britain",
+      "age": "Modern",
+      "dlc": "Crossroads of the World Collection"
+    },
+    {
+      "name": "Joseon",
+      "age": "Modern",
+      "dlc": "Brush and Blade Collection"
+    },
+    {
+      "name": "Meiji Japan",
+      "age": "Modern",
+      "dlc": null
+    },
+    {
+      "name": "Mexico",
+      "age": "Modern",
+      "dlc": null
+    },
+    {
+      "name": "Mughal India",
+      "age": "Modern",
+      "dlc": null
+    },
+    {
+      "name": "Nepal",
+      "age": "Modern",
+      "dlc": "Crossroads of the World Collection"
+    },
+    {
+      "name": "Ottomans",
+      "age": "Modern",
+      "dlc": "Tides of Power Collection"
+    },
+    {
+      "name": "Prussia",
+      "age": "Modern",
+      "dlc": null
+    },
+    {
+      "name": "Qajar",
+      "age": "Modern",
+      "dlc": "Right to Rule Collection"
+    },
+    {
+      "name": "Qing China",
+      "age": "Modern",
+      "dlc": null
+    },
+    {
+      "name": "Russia",
+      "age": "Modern",
+      "dlc": null
+    },
+    {
+      "name": "Siam",
+      "age": "Modern",
+      "dlc": null
+    }
+  ],
+  "leaders": [
+    {
+      "name": "Ada Lovelace",
+      "dlc": "Crossroads of the World Collection"
+    },
+    {
+      "name": "Alexander the Great",
+      "dlc": null
+    },
+    {
+      "name": "Amina",
+      "dlc": null
+    },
+    {
+      "name": "Ashoka",
+      "dlc": null
+    },
+    {
+      "name": "Augustus",
+      "dlc": null
+    },
+    {
+      "name": "Benjamin Franklin",
+      "dlc": null
+    },
+    {
+      "name": "Catherine the Great",
+      "dlc": null
+    },
+    {
+      "name": "Charlemagne",
+      "dlc": null
+    },
+    {
+      "name": "Confucius",
+      "dlc": null
+    },
+    {
+      "name": "Edward Teach",
+      "dlc": "Tides of Power Collection"
+    },
+    {
+      "name": "Friedrich",
+      "dlc": null
+    },
+    {
+      "name": "Genghis Khan",
+      "dlc": "Right to Rule Collection"
+    },
+    {
+      "name": "Gilgamesh",
+      "dlc": null
+    },
+    {
+      "name": "Harriet Tubman",
+      "dlc": null
+    },
+    {
+      "name": "Hatshepsut",
+      "dlc": null
+    },
+    {
+      "name": "Himiko",
+      "dlc": null
+    },
+    {
+      "name": "Ibn Battuta",
+      "dlc": null
+    },
+    {
+      "name": "Isabella",
+      "dlc": null
+    },
+    {
+      "name": "José Rizal",
+      "dlc": null
+    },
+    {
+      "name": "Lafayette",
+      "dlc": null
+    },
+    {
+      "name": "Lakshmibai",
+      "dlc": "Right to Rule Collection"
+    },
+    {
+      "name": "Machiavelli",
+      "dlc": null
+    },
+    {
+      "name": "Napoleon",
+      "dlc": null
+    },
+    {
+      "name": "Pachacuti",
+      "dlc": null
+    },
+    {
+      "name": "Sayyida al Hurra",
+      "dlc": "Tides of Power Collection"
+    },
+    {
+      "name": "Simón Bolívar",
+      "dlc": "Crossroads of the World Collection"
+    },
+    {
+      "name": "Tecumseh",
+      "dlc": "Tecumseh & Shawnee Pack"
+    },
+    {
+      "name": "Toyotomi Hideyoshi",
+      "dlc": "Brush and Blade Collection"
+    },
+    {
+      "name": "Trung Trac",
+      "dlc": null
+    },
+    {
+      "name": "Xerxes",
+      "dlc": null
+    },
+    {
+      "name": "Yi Sun-sin",
+      "dlc": "Brush and Blade Collection"
+    }
+  ],
+  "collections": [
+    {
+      "name": "Brush and Blade Collection",
+      "leaders": [
+        "Toyotomi Hideyoshi",
+        "Yi Sun-sin"
+      ],
+      "civs": [
+        "Heian Japan",
+        "Sengoku Japan",
+        "Goryeo",
+        "Joseon"
+      ]
+    },
+    {
+      "name": "Tides of Power Collection",
+      "leaders": [
+        "Edward Teach",
+        "Sayyida al Hurra"
+      ],
+      "civs": [
+        "Tonga",
+        "Republic of Pirates",
+        "Ottomans",
+        "Iceland"
+      ]
+    },
+    {
+      "name": "Right to Rule Collection",
+      "leaders": [
+        "Genghis Khan",
+        "Lakshmibai"
+      ],
+      "civs": [
+        "Assyria",
+        "Dai Viet",
+        "Qajar",
+        "Silla"
+      ]
+    },
+    {
+      "name": "Crossroads of the World Collection",
+      "leaders": [
+        "Ada Lovelace",
+        "Simón Bolívar"
+      ],
+      "civs": [
+        "Carthage",
+        "Great Britain",
+        "Nepal",
+        "Bulgaria"
+      ]
+    }
+  ],
+  "staticPacks": [
+    {
+      "name": "Tecumseh & Shawnee Pack",
+      "leaders": [
+        "Tecumseh"
+      ],
+      "civs": [
+        "Shawnee"
+      ]
+    },
+    {
+      "name": "Deluxe Edition Content",
+      "leaders": [],
+      "civs": [],
+      "personas": [
+        "Friedrich (Baroque)",
+        "Xerxes (The Achaemenid)"
+      ]
+    },
+    {
+      "name": "Founder's Edition Content",
+      "leaders": [],
+      "civs": [],
+      "personas": [
+        "Ashoka (World Conqueror)",
+        "Himiko (High Shaman)"
+      ]
+    },
+    {
+      "name": "Napoleon (2K Account Rewards)",
+      "leaders": [],
+      "civs": [],
+      "personas": [
+        "Napoleon (Revolutionary)",
+        "Napoleon (Emperor)"
+      ]
+    }
+  ]
+}
