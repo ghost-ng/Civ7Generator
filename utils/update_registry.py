@@ -25,6 +25,7 @@ import sys
 import time
 import unicodedata
 import urllib.error
+import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
@@ -122,6 +123,109 @@ def fetch(path: str) -> str:
             print(f"curl fetch of {url} failed ({exc})", file=sys.stderr)
             last_err = exc
     raise last_err
+
+
+WIKI_API = "https://civilization.fandom.com/api.php"
+
+# The Civ wiki names civ pages adjectivally ("Aksumite") where 2K and the app
+# use the in-game name ("Aksum"). Maps norm(wiki title) -> norm(2K name).
+WIKI_ALIASES = {
+    "achaemenid persian": "achaemenid persia",
+    "aksumite": "aksum",
+    "assyrian": "assyria",
+    "carthaginian": "carthage",
+    "egyptian": "egypt",
+    "greek": "greece",
+    "han": "han china",
+    "heian": "heian japan",
+    "mauryan": "maurya india",
+    "roman": "rome",
+    "tongan": "tonga",
+    "bulgarian": "bulgaria",
+    "hawaiian": "hawai'i",
+    "icelandic": "iceland",
+    "incan": "inca",
+    "ming": "ming china",
+    "mongolian": "mongolia",
+    "pirate": "republic of pirates",
+    "spanish": "spain",
+    "vietnamese": "dai viet",
+    "american": "america",
+    "british": "great britain",
+    "bugandan": "buganda",
+    "french imperial": "french empire",
+    "meiji japanese": "meiji japan",
+    "mexican": "mexico",
+    "mughal": "mughal india",
+    "nepalese": "nepal",
+    "ottoman": "ottomans",
+    "prussian": "prussia",
+    "qing": "qing china",
+    "russian": "russia",
+    "siamese": "siam",
+    "alexander": "alexander the great",
+}
+
+
+def wiki_norm(title: str) -> str:
+    s = norm(re.sub(r"\s*\(Civ7\)$", "", title.strip()))
+    return WIKI_ALIASES.get(s, s)
+
+
+def fetch_wiki_category(category: str) -> list[str]:
+    """Main-namespace member titles of a wiki category, '(Civ7)' suffix kept,
+    persona subpages ('Ashoka (Civ7)/World Conqueror') and the category's own
+    list page excluded."""
+    url = (f"{WIKI_API}?action=query&list=categorymembers"
+           f"&cmtitle=Category:{urllib.parse.quote(category)}"
+           f"&cmlimit=500&cmnamespace=0&format=json")
+    req = urllib.request.Request(url, headers=BROWSER_HEADERS)
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        data = json.load(resp)
+    return [m["title"] for m in data["query"]["categorymembers"]
+            if "/" not in m["title"] and not m["title"].startswith(category.split(" (")[0])]
+
+
+def build_registry_from_wiki(previous: dict | None) -> dict:
+    """Fallback roster source for environments 2K's CDN blocks (e.g. GitHub
+    runners): the Civ wiki's MediaWiki API. Display names and DLC attribution
+    are taken from the previous registry when a roster entry matches, so the
+    registry stays stable across sources; collections carry over unchanged
+    (the wiki has no equivalent of 2K's collections page)."""
+    prev = previous or {}
+    prev_civs = {norm(c["name"]): c for c in prev.get("civs", [])}
+    prev_leaders = {norm(l["name"]): l for l in prev.get("leaders", [])}
+
+    civs = []
+    for age in ("Antiquity", "Exploration", "Modern"):
+        for title in fetch_wiki_category(f"{age} age civilizations (Civ7)"):
+            key = wiki_norm(title)
+            known = prev_civs.get(key)
+            civs.append({"name": known["name"] if known else re.sub(r"\s*\(Civ7\)$", "", title),
+                         "age": AGE_OVERRIDES.get(key, age),
+                         "dlc": known.get("dlc") if known else None})
+
+    leaders = []
+    for title in fetch_wiki_category("Leaders (Civ7)"):
+        key = wiki_norm(title)
+        known = prev_leaders.get(key)
+        leaders.append({"name": known["name"] if known else re.sub(r"\s*\(Civ7\)$", "", title),
+                        "dlc": known.get("dlc") if known else None})
+
+    if len(leaders) < 15 or len(civs) < 25:
+        raise RuntimeError(
+            f"Wiki parse sanity check failed: {len(leaders)} leaders, {len(civs)} civs "
+            "— category structure may have changed."
+        )
+
+    return {
+        "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "source": f"{BASE_URL} (rosters via {WIKI_API} fallback)",
+        "civs": sorted(civs, key=lambda c: (c["age"] or "", c["name"])),
+        "leaders": sorted(leaders, key=lambda l: l["name"]),
+        "collections": prev.get("collections", []),
+        "staticPacks": STATIC_PACKS,
+    }
 
 
 def parse_leaders(page: str) -> list[str]:
@@ -348,18 +452,25 @@ def main() -> int:
     root = args.repo_root.resolve()
     report_path = args.report or root / "drift-report.md"
 
-    try:
-        registry = build_registry()
-    except Exception as exc:  # noqa: BLE001 - report any scrape failure to CI
-        print(f"ERROR: {exc}", file=sys.stderr)
-        return 1
-
     out = root / "data" / "registry.json"
     out.parent.mkdir(parents=True, exist_ok=True)
 
     previous = None
     if out.exists():
         previous = json.loads(out.read_text(encoding="utf-8"))
+
+    try:
+        registry = build_registry()
+    except Exception as exc:  # noqa: BLE001 - any scrape failure triggers the fallback
+        # 2K's CDN blocks datacenter IPs (GitHub runners get 403 on every
+        # page), so rebuild the rosters from the Civ wiki API instead.
+        print(f"WARNING: 2K scrape failed ({exc}); using the Civ wiki API fallback",
+              file=sys.stderr)
+        try:
+            registry = build_registry_from_wiki(previous)
+        except Exception as exc2:  # noqa: BLE001 - report fallback failure to CI
+            print(f"ERROR: {exc2}", file=sys.stderr)
+            return 1
 
     changed = previous is None or {k: v for k, v in registry.items() if k != "generatedAt"} != {
         k: v for k, v in previous.items() if k != "generatedAt"
