@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-08-15T17:23:35+00:00",
-  "source": "https://civilization.2k.com/civ-vii",
+  "generatedAt": "2026-08-17T10:31:44+00:00",
+  "source": "https://civilization.2k.com/civ-vii (rosters via https://civilization.fandom.com/api.php fallback)",
   "civs": [
     {
       "name": "Aksum",
@@ -124,6 +124,11 @@
     },
     {
       "name": "Ming China",
+      "age": "Exploration",
+      "dlc": null
+    },
+    {
+      "name": "Mongolian",
       "age": "Exploration",
       "dlc": null
     },
