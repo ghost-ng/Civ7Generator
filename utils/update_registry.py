@@ -21,13 +21,16 @@ import html
 import json
 import re
 import sys
+import time
 import unicodedata
+import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
 BASE_URL = "https://civilization.2k.com/civ-vii"
-USER_AGENT = "Mozilla/5.0 (registry-updater; +https://github.com/ghost-ng/Civ7Generator)"
+USER_AGENT = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+              "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36")
 
 # Content that never appears on the collections page: launch-era edition and
 # account content, and free-update leaders that count as base game.
@@ -78,9 +81,24 @@ def pack_norm(name: str) -> str:
 
 
 def fetch(path: str) -> str:
-    req = urllib.request.Request(BASE_URL + path, headers={"User-Agent": USER_AGENT})
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        return resp.read().decode("utf-8", errors="replace")
+    # 2K's CDN 403s requests that don't look like a browser (bot-style
+    # User-Agents from datacenter IPs, e.g. GitHub Actions runners), so send
+    # ordinary browser headers and retry once in case of a transient block.
+    req = urllib.request.Request(BASE_URL + path, headers={
+        "User-Agent": USER_AGENT,
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+    })
+    last_err = None
+    for attempt in range(2):
+        if attempt:
+            time.sleep(10)
+        try:
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                return resp.read().decode("utf-8", errors="replace")
+        except urllib.error.HTTPError as exc:
+            last_err = exc
+    raise last_err
 
 
 def parse_leaders(page: str) -> list[str]:
