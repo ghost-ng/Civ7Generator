@@ -424,6 +424,86 @@
         footer a:hover { color: var(--brass-bright); text-decoration: underline; }
 
         :focus-visible { outline: 2px solid var(--brass-bright); outline-offset: 2px; }
+
+        /* ---------- Bonus tooltips ---------- */
+        .tip-target {
+            cursor: help;
+            border-bottom: 1px dotted var(--brass);
+        }
+        .tip-target:hover, .tip-target:focus-visible { border-bottom-color: var(--brass-bright); }
+
+        #bonus-tip {
+            position: fixed;
+            z-index: 50;
+            width: min(360px, calc(100vw - 24px));
+            text-align: left;
+            background: linear-gradient(160deg, rgba(20, 28, 44, 0.98), rgba(10, 15, 26, 0.98));
+            border: 1px solid var(--brass);
+            box-shadow: inset 0 0 0 1px rgba(12, 18, 32, 0.9),
+                        inset 0 0 0 2px var(--brass-dim),
+                        0 10px 28px rgba(0, 0, 0, 0.55);
+            padding: 14px 16px 13px;
+            font-size: 0.83rem;
+            line-height: 1.45;
+            color: var(--parchment);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.12s ease;
+            pointer-events: none;
+        }
+        #bonus-tip.visible { opacity: 1; visibility: visible; }
+
+        #bonus-tip .tip-title {
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: 0.06em;
+            color: var(--brass-bright);
+        }
+        #bonus-tip .tip-kind {
+            font-size: 0.64rem;
+            font-weight: 600;
+            letter-spacing: 0.24em;
+            text-transform: uppercase;
+            color: var(--slate);
+            margin-bottom: 8px;
+        }
+        #bonus-tip .tip-rule {
+            height: 1px;
+            margin: 8px 0;
+            background: linear-gradient(90deg, transparent, var(--brass-dim) 18%, var(--brass-dim) 82%, transparent);
+        }
+        #bonus-tip .tip-ability-name {
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            color: var(--brass);
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            margin-bottom: 3px;
+        }
+        #bonus-tip .tip-body { color: var(--parchment); margin: 0; }
+        #bonus-tip ul {
+            margin: 4px 0 0;
+            padding-left: 16px;
+        }
+        #bonus-tip li { margin-bottom: 2px; }
+        #bonus-tip li::marker { color: var(--brass-dim); }
+        #bonus-tip .tip-unique-name { color: var(--brass-bright); font-weight: 600; }
+        #bonus-tip .tip-foot { color: var(--slate); font-size: 0.74rem; margin-top: 2px; }
+
+        .yicon {
+            width: 1em;
+            height: 1em;
+            vertical-align: -0.13em;
+            margin: 0 1px;
+        }
+        .y-food       { color: #8fc860; }
+        .y-production { color: #c9773f; }
+        .y-gold       { color: #f2c744; }
+        .y-science    { color: #5aa9e6; }
+        .y-culture    { color: #b07ce8; }
+        .y-happiness  { color: #f0954f; }
+        .y-influence  { color: #a8c0d8; }
     </style>
 </head>
 <body>
@@ -492,12 +572,46 @@
         <!-- Output Results -->
         <section id="output" class="results" aria-live="polite"></section>
 
+        <!-- Yield icons for bonus tooltips (stylized after the game's yields) -->
+        <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+            <symbol id="icon-food" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M12 22c-.4-3-.4-6 0-9M12 13c-3.4-.7-5.6-3.3-6-7 3.7.4 6.3 2.6 7 6-0.3.3-.7.6-1 1zm1-1c.7-3.4 3.3-5.6 7-6-.4 3.7-2.6 6.3-6 7-.4-.3-.7-.6-1-1zm-1-2.5C10.8 6.6 10.8 4.3 12 2c1.2 2.3 1.2 4.6 0 6.5z"/>
+                <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M12 21c-.3-2.6-.3-5.4 0-8"/>
+            </symbol>
+            <symbol id="icon-production" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M12 8.2A3.8 3.8 0 1 0 12 15.8 3.8 3.8 0 0 0 12 8.2zm0 1.8a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm9.4 3.5.1-1.5-2.3-.9a7.3 7.3 0 0 0-.5-1.9l1.4-2-1-1.2-2.2 1a7.3 7.3 0 0 0-1.7-1L15 3.6l-1.5-.4-1.2 2.1h-2L9.1 3.2l-1.5.4-.2 2.4a7.3 7.3 0 0 0-1.7 1l-2.2-1-1 1.3 1.4 2a7.3 7.3 0 0 0-.5 1.8l-2.3.9.1 1.6 2.3.6c.1.7.3 1.3.6 1.9l-1.2 2.1 1.1 1.1 2.1-1.1c.5.4 1.1.8 1.8.9l.5 2.4 1.5.2 1-2.2h2l1 2.2 1.5-.3.4-2.3c.7-.2 1.3-.5 1.8-1l2.1 1.2 1.1-1.2-1.2-2c.3-.6.5-1.3.6-1.9l2.3-.7z"/>
+            </symbol>
+            <symbol id="icon-gold" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="9.2" fill="currentColor"/>
+                <circle cx="12" cy="12" r="6.4" fill="none" stroke="rgba(0,0,0,0.45)" stroke-width="1.4"/>
+                <circle cx="12" cy="12" r="9.2" fill="none" stroke="rgba(0,0,0,0.3)" stroke-width="1.2"/>
+            </symbol>
+            <symbol id="icon-science" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M9.5 2.5h5v1.6l-1 .6v4.5l5.4 8.7c.8 1.3-.1 3.1-1.7 3.1H6.8c-1.6 0-2.5-1.8-1.7-3.1l5.4-8.7V4.7l-1-.6V2.5zm1.4 8.1-2.3 3.8c1.1-.4 2.5-.3 3.9.4 1.2.6 2.4.7 3.4.5l-2.7-4.4-.1-.3V5h-2v4.9l-.2.7z"/>
+            </symbol>
+            <symbol id="icon-culture" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M9 2.5h6l-.5 2.3c1.9.4 3 1.3 3 2.2 0 .8-.8 1.4-2 1.8l-.4 9.7 1.9 2v1.5H7v-1.5l1.9-2-.4-9.7c-1.2-.4-2-1-2-1.8 0-.9 1.1-1.8 3-2.2L9 2.5zm1.6 4.4.4 10.6-.8 1h3.6l-.8-1 .4-10.6c.6 0 1.1-.1 1.6-.2-.5-.5-1.5-.9-3-.9s-2.5.4-3 .9c.5.1 1 .2 1.6.2z"/>
+            </symbol>
+            <symbol id="icon-happiness" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="9.2" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                <circle cx="8.7" cy="9.6" r="1.4" fill="currentColor"/>
+                <circle cx="15.3" cy="9.6" r="1.4" fill="currentColor"/>
+                <path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M7.6 14.2c1.2 1.7 2.7 2.5 4.4 2.5s3.2-.8 4.4-2.5"/>
+            </symbol>
+            <symbol id="icon-influence" viewBox="0 0 24 24">
+                <path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" d="M6.5 3.6C4 5.4 2.8 8.5 3.6 11.7c.9 3.6 3.6 6.4 8.4 8.7 4.8-2.3 7.5-5.1 8.4-8.7.8-3.2-.4-6.3-2.9-8.1"/>
+                <circle cx="12" cy="10" r="3" fill="currentColor"/>
+            </symbol>
+        </svg>
+        <div id="bonus-tip" role="tooltip"></div>
+
         <footer>
             <p>Created by <a href="https://github.com/ghost-ng" target="_blank">ghost-ng</a></p>
             <p>Icons made by <a href="https://civilization.2k.com/civ-vii/game-guide/leaders/" target="_blank">2K Games</a></p>
         </footer>
     </div>
 
+    <script src="data/bonuses.js"></script>
     <script>
     const civList = [
         "Aksum", "Assyria", "Egypt", "Greece", "Han China",
@@ -758,12 +872,20 @@
         document.getElementById("form-error").classList.remove("visible");
     }
 
+    // Wraps a civ/leader name so the bonus tooltip engine picks it up on
+    // hover/focus. Falls back to plain text when no catalog entry exists.
+    function tipSpan(name, kind) {
+        const catalog = kind === "civ" ? window.civBonuses : window.leaderBonuses;
+        if (!catalog || !catalog[name]) return name;
+        return `<span class="tip-target" tabindex="0" data-tip-kind="${kind}" data-tip-key="${name}">${name}</span>`;
+    }
+
     function renderPlaque(name, civ, leader, isHuman) {
         return `<div class="plaque ${isHuman ? "human" : "ai"}">
             <div class="plaque-tag">${isHuman ? "Human" : "AI Opponent"}</div>
             <div class="portrait"><span class="corner"></span><img src="${leaderDict[leader]}" alt="${leader}"></div>
             <div class="plaque-name">${name}</div>
-            <p class="plaque-line">plays <strong>${civ}</strong> led by <strong class="leader">${leader}</strong></p>
+            <p class="plaque-line">plays <strong>${tipSpan(civ, "civ")}</strong> led by <strong class="leader">${tipSpan(leader, "leader")}</strong></p>
         </div>`;
     }
 
@@ -841,6 +963,88 @@
     document.getElementById("humans-only").addEventListener("change", function () {
         document.getElementById("ai-count").disabled = this.checked;
     });
+
+    // ---------- Bonus tooltips ----------
+    // Content comes from data/bonuses.js (window.civBonuses / window.leaderBonuses).
+    const bonusTip = document.getElementById("bonus-tip");
+
+    function escapeHTML(str) {
+        return String(str).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    // Replace [food]/[gold]/... tokens from the catalog text with yield icons.
+    function formatBonusText(text) {
+        return escapeHTML(text).replace(
+            /\[(food|production|gold|science|culture|happiness|influence)\]/g,
+            (_, y) => `<svg class="yicon y-${y}" aria-hidden="true"><use href="#icon-${y}"></use></svg>`
+        ).replace(/\n/g, "<br>");
+    }
+
+    function uniquesListHTML(items) {
+        if (!items || !items.length) return "";
+        return `<ul>${items.map(item => {
+            // "Name — short description" entries get the name highlighted
+            const parts = String(item).split(" — ");
+            const name = `<span class="tip-unique-name">${escapeHTML(parts[0])}</span>`;
+            return `<li>${parts.length > 1 ? `${name} — ${formatBonusText(parts.slice(1).join(" — "))}` : name}</li>`;
+        }).join("")}</ul>`;
+    }
+
+    function bonusTipHTML(kind, key) {
+        const entry = (kind === "civ" ? window.civBonuses : window.leaderBonuses)?.[key];
+        if (!entry) return "";
+        let html = `<div class="tip-title">${escapeHTML(key)}</div>
+            <div class="tip-kind">${kind === "civ" ? "Civilization" : "Leader"}${entry.attributes ? " · " + escapeHTML(entry.attributes) : ""}</div>`;
+        if (entry.ability) {
+            html += `<div class="tip-ability-name">${escapeHTML(entry.ability_name || "Unique Ability")}</div>
+                <p class="tip-body">${formatBonusText(entry.ability)}</p>`;
+        }
+        const uniques = [...(entry.units || []), ...(entry.infrastructure || [])];
+        if (uniques.length) {
+            html += `<div class="tip-rule"></div><div class="tip-ability-name">Uniques</div>${uniquesListHTML(uniques)}`;
+        }
+        const foot = [];
+        if (entry.civic) foot.push(`Unique civic: ${escapeHTML(entry.civic)}`);
+        if (entry.agenda) foot.push(`Agenda: ${escapeHTML(entry.agenda)}`);
+        if (foot.length) html += `<div class="tip-rule"></div><div class="tip-foot">${foot.join(" · ")}</div>`;
+        return html;
+    }
+
+    function showBonusTip(target) {
+        const html = bonusTipHTML(target.dataset.tipKind, target.dataset.tipKey);
+        if (!html) return;
+        bonusTip.innerHTML = html;
+        bonusTip.classList.add("visible");
+        // Position above the name, clamped to the viewport; flip below if cramped.
+        const rect = target.getBoundingClientRect();
+        const tipRect = bonusTip.getBoundingClientRect();
+        let left = Math.min(Math.max(12, rect.left + rect.width / 2 - tipRect.width / 2),
+                            window.innerWidth - tipRect.width - 12);
+        let top = rect.top - tipRect.height - 10;
+        if (top < 12) top = rect.bottom + 10;
+        bonusTip.style.left = `${left}px`;
+        bonusTip.style.top = `${top}px`;
+    }
+
+    function hideBonusTip() {
+        bonusTip.classList.remove("visible");
+    }
+
+    const output = document.getElementById("output");
+    output.addEventListener("mouseover", e => {
+        const target = e.target.closest(".tip-target");
+        if (target) showBonusTip(target);
+    });
+    output.addEventListener("mouseout", e => {
+        if (e.target.closest(".tip-target")) hideBonusTip();
+    });
+    // Keyboard and touch: focus/tap shows, blur/tap-elsewhere hides
+    output.addEventListener("focusin", e => {
+        const target = e.target.closest(".tip-target");
+        if (target) showBonusTip(target);
+    });
+    output.addEventListener("focusout", hideBonusTip);
+    window.addEventListener("scroll", hideBonusTip, { passive: true });
     </script>
 
 </body>

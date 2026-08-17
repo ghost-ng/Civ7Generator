@@ -198,6 +198,16 @@ def parse_app_data(index_html: str) -> dict:
     return {"civs": civs, "leaders": leaders, "packs": packs}
 
 
+def parse_bonuses(bonuses_js: str) -> dict:
+    """Pull the civBonuses / leaderBonuses keys out of data/bonuses.js."""
+    out = {}
+    for kind, var in (("civs", "civBonuses"), ("leaders", "leaderBonuses")):
+        m = re.search(rf"window\.{var} = \{{(.*?)\n\}};", bonuses_js, re.S)
+        # Entry keys are quoted at 4-space indent; nested fields are deeper.
+        out[kind] = re.findall(r'^    "([^"]+)": \{', m.group(1), re.M) if m else []
+    return out
+
+
 def build_registry() -> dict:
     leaders_page = fetch("/game-guide/leaders/")
     civs_page = fetch("/game-guide/civilizations/")
@@ -235,7 +245,7 @@ def build_registry() -> dict:
     }
 
 
-def drift_report(registry: dict, app: dict) -> list[str]:
+def drift_report(registry: dict, app: dict, bonuses: dict | None = None) -> list[str]:
     lines = []
     app_civs = {norm(c) for c in app["civs"]}
     app_leaders = {norm(l) for l in app["leaders"]}
@@ -273,6 +283,17 @@ def drift_report(registry: dict, app: dict) -> list[str]:
                 if norm(item) not in app_pack_items and norm(item) in app_known:
                     lines.append(f"- {coll['name']}: {kind} **{item}** is in the app but not "
                                  f"mapped to this pack in dlcPacks")
+
+    # Anything the app ships must also have a tooltip entry in data/bonuses.js.
+    if bonuses is not None:
+        bonus_civs = {norm(c) for c in bonuses["civs"]}
+        bonus_leaders = {norm(l) for l in bonuses["leaders"]}
+        for civ in app["civs"]:
+            if norm(civ) not in bonus_civs:
+                lines.append(f"- Civ missing from the data/bonuses.js tooltip catalog: **{civ}**")
+        for leader in app["leaders"]:
+            if norm(leader) not in bonus_leaders:
+                lines.append(f"- Leader missing from the data/bonuses.js tooltip catalog: **{leader}**")
     return lines
 
 
@@ -319,7 +340,16 @@ def main() -> int:
               "parse_app_data's regexes no longer match the file's formatting.",
               file=sys.stderr)
         return 1
-    lines = drift_report(registry, app)
+    bonuses_path = root / "data" / "bonuses.js"
+    bonuses = None
+    if bonuses_path.exists():
+        bonuses = parse_bonuses(bonuses_path.read_text(encoding="utf-8"))
+        if len(bonuses["civs"]) < 10 or len(bonuses["leaders"]) < 15:
+            print(f"ERROR: bonuses.js parse sanity check failed: {len(bonuses['civs'])} civs, "
+                  f"{len(bonuses['leaders'])} leaders — parse_bonuses's regexes no longer "
+                  "match the file's formatting.", file=sys.stderr)
+            return 1
+    lines = drift_report(registry, app, bonuses)
     if lines:
         report = ("## Civ VII registry drift\n\n"
                   "The official 2K pages list content that `index.html` doesn't have yet:\n\n"
