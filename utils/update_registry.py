@@ -20,6 +20,7 @@ import argparse
 import html
 import json
 import re
+import subprocess
 import sys
 import time
 import unicodedata
@@ -80,23 +81,45 @@ def pack_norm(name: str) -> str:
     return re.sub(r"\s+", " ", s).strip()
 
 
+BROWSER_HEADERS = {
+    "User-Agent": USER_AGENT,
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.9",
+}
+
+
+def _fetch_urllib(url: str) -> str:
+    req = urllib.request.Request(url, headers=BROWSER_HEADERS)
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        return resp.read().decode("utf-8", errors="replace")
+
+
+def _fetch_curl(url: str) -> str:
+    args = ["curl", "-sS", "--fail", "--max-time", "60", "--compressed"]
+    for k, v in BROWSER_HEADERS.items():
+        args += ["-H", f"{k}: {v}"]
+    return subprocess.run(args + [url], check=True, capture_output=True,
+                          text=True, encoding="utf-8", errors="replace").stdout
+
+
 def fetch(path: str) -> str:
-    # 2K's CDN 403s requests that don't look like a browser (bot-style
-    # User-Agents from datacenter IPs, e.g. GitHub Actions runners), so send
-    # ordinary browser headers and retry once in case of a transient block.
-    req = urllib.request.Request(BASE_URL + path, headers={
-        "User-Agent": USER_AGENT,
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.9",
-    })
+    # 2K's CDN 403s non-browser requests from datacenter IPs (e.g. GitHub
+    # Actions runners): urllib is tried first, then curl (a different TLS
+    # fingerprint, which the CDN's bot filter treats differently).
+    url = BASE_URL + path
     last_err = None
     for attempt in range(2):
         if attempt:
             time.sleep(10)
         try:
-            with urllib.request.urlopen(req, timeout=60) as resp:
-                return resp.read().decode("utf-8", errors="replace")
+            return _fetch_urllib(url)
         except urllib.error.HTTPError as exc:
+            print(f"urllib fetch of {url} failed ({exc}); trying curl", file=sys.stderr)
+            last_err = exc
+        try:
+            return _fetch_curl(url)
+        except (subprocess.CalledProcessError, FileNotFoundError) as exc:
+            print(f"curl fetch of {url} failed ({exc})", file=sys.stderr)
             last_err = exc
     raise last_err
 
