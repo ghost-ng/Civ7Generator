@@ -318,6 +318,7 @@
             background: var(--panel);
             border: 1px solid var(--panel-edge);
         }
+        .export-bar .form-error { width: 100%; margin-top: 0; }
         .export-bar .toggle-hint a { color: var(--brass); }
         .export-bar .toggle-hint a:hover { color: var(--brass-bright); }
         #mod-code-fallback {
@@ -888,13 +889,11 @@
             }
             return `${a.role}:${leaderId}:${civId}`;
         });
-        // A Civ VII game runs one age at a time, so the code carries a single
-        // age token — derived from the assigned civs, not the filter UI.
-        const ages = [...new Set(lastAssignment.map(a => civAges[a.civ]))];
-        if (ages.length !== 1) {
-            throw new Error("The results mix civs from different ages, which a single game can't use — keep only one age and regenerate to export a mod code.");
-        }
-        return ["C7L1", ages[0].toUpperCase(), ...entries].join(";");
+        // The code carries a single age token: the earliest age present among
+        // the assigned civs (the game's setup accepts civs across ages).
+        const assignedAges = new Set(lastAssignment.map(a => civAges[a.civ]));
+        const age = AGES.find(a => assignedAges.has(a));
+        return ["C7L1", age.toUpperCase(), ...entries].join(";");
     }
 
     function copyModCode() {
@@ -902,7 +901,11 @@
         try {
             code = buildLoadoutCode();
         } catch (err) {
-            showError(err.message);
+            // Show the error beside the button — the form's error box is
+            // scrolled out of view when the user is down at the results.
+            const box = document.getElementById("export-error");
+            box.textContent = err.message;
+            box.classList.add("visible");
             return;
         }
         const done = () => {
@@ -1059,6 +1062,7 @@
             <span class="toggle-hint">— paste into the in-game Import Code panel
                 (<a href="https://github.com/ghost-ng/Civ7Generator/tree/main/Mod/ghostng-random-civ-generator" target="_blank">get the mod</a>)</span>
             <textarea id="mod-code-fallback" readonly aria-label="Mod code" style="display:none"></textarea>
+            <div class="form-error" id="export-error" role="alert"></div>
         </div>`;
 
         document.getElementById("output").innerHTML = outputHTML;
