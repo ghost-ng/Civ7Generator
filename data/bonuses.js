@@ -2,7 +2,7 @@
 // Keys must match the display names in civList / leaderDict exactly.
 // [food] [production] [gold] [science] [culture] [happiness] [influence]
 // tokens are swapped for yield icons by formatBonusText() in index.html.
-// Sourced from the Civilization VII wiki (Antiquity Age text).
+// Sourced from the Civilization VII wiki (each civ's own-age text).
 
 window.civBonuses = {
     "Aksum": {
@@ -217,6 +217,454 @@ window.civBonuses = {
             "Vaikaukau — [happiness] Happiness building with coastal [culture] Culture adjacency"
         ],
         civic: "Lapita Origins, ʻEsi Maka Faakinanga, Kava Ceremony"
+    },
+    // ---------- Exploration Age ----------
+    "Abbasid": {
+        ability_name: "Medina",
+        ability: "Receive 30 [gold] Gold for each Rural Population of the City when you create a Specialist. +20% [production] Production towards constructing Buildings in Cities with at least 5 Specialists. +30% [production] Production towards constructing the House of Wisdom.",
+        attributes: "Expansionist, Scientific",
+        units: [
+            "Mamluk — skirmishing cavalry, stronger in settlements with 5+ Specialists",
+            "'Alim — random unique Great Person, trainable in cities with an Ulema"
+        ],
+        infrastructure: [
+            "Ulema — quarter; +1 [science] Science on Specialists in this city",
+            "Madrasa — [science] Science building with quarter/Wonder adjacency",
+            "Mosque — [happiness] Happiness building that unlocks founding a Religion"
+        ],
+        civic: "Round City, Mawla, Al-Jabr"
+    },
+    "Bulgaria": {
+        ability_name: "Krum's Dynasty",
+        ability: "Receive [production] Production in all Cities when pillaging Improvements equal to 50% of the HP or yields gained. -3 Combat Strength for all Military Units against Fortified Districts. +30% [production] Production towards constructing Rila Monastery.",
+        attributes: "Expansionist, Militaristic",
+        units: [
+            "Bolyar — cavalry that ignores rough-terrain penalties and fights better there",
+            "Tarkhan — fast commander whose units pillage for 1 Movement"
+        ],
+        infrastructure: [
+            "Hidden Fortress — [production] Production and [culture] Culture per adjacent Mountain; stealthy fortification"
+        ],
+        civic: "Seven Tribes, Tarnovo Schools, Tsarstvie"
+    },
+    "Chola India": {
+        ability_name: "Samayam",
+        ability: "+3 [gold] Gold and +2 [influence] Influence for every active Trade Route. +1 Trade Route from the Improve Trade Relations action. +1 Movement for Merchants. +1 [gold] Gold per turn for imported Resources assigned to Cities. +30% [production] Production towards constructing the Brihadeeswarar Temple.",
+        attributes: "Diplomatic, Economic",
+        units: [
+            "Kalam — heavy naval unit that can attack twice per turn",
+            "Ottru — fleet commander; enemies in its radius lose Combat Strength"
+        ],
+        infrastructure: [
+            "Five Hundred Lords — quarter; greatly extends land and naval trade range",
+            "Manigramam — [happiness] Happiness building with [gold] Gold adjacency",
+            "Anjuvannam — [gold] Gold building boosting naval unit [production] Production"
+        ],
+        civic: "Nagaram, Kanakam, Digvijaya, Monsoon Winds"
+    },
+    "Dai Viet": {
+        ability_name: "Hich Tuong Si",
+        ability: "When you create a Fortification Building or Wonder, gain 25 [culture] Culture for each Urban Population in the Settlement. +2 [culture] Culture and [food] Food on Fortification Constructables in Tropical terrain. +30% [production] Production towards constructing the Thành Huế.",
+        attributes: "Cultural, Expansionist",
+        units: [
+            "Voi Chiến — war elephant that can move after attacking",
+            "Quận Vương — settler granting [culture] Culture for nearby Tropical tiles"
+        ],
+        infrastructure: [
+            "Water Puppet Theater — [food] Food and [happiness] Happiness on Floodplains; flood-proof settlement"
+        ],
+        civic: "Cấm Quân, Chữ Nôm, Thành Hoàng, Tứ Dân"
+    },
+    "Goryeo": {
+        ability_name: "Byeongjo",
+        ability: "+3 [culture] Culture from active Endeavors you have started or supported. +1 [culture] Culture on Unique Improvements in Towns and +1 [influence] Influence on Unique Improvements in Cities. +30% [production] Production towards constructing Buseoksa.",
+        attributes: "Cultural, Diplomatic",
+        units: [
+            "Hwacha — siege unit with splash damage",
+            "Tobang — cavalry, stronger on districts; [influence] Influence when garrisoning city centers"
+        ],
+        infrastructure: [
+            "Gama — improvement on vegetated terrain; [culture] Culture plus [production] Production from adjacent Warehouse buildings"
+        ],
+        civic: "Cheonsu, Jikji, Tripitaka Koreana"
+    },
+    "Hawaii": {
+        ability_name: "Moananuiākea",
+        ability: "Can work Ocean tiles. +1 [happiness] Happiness and +2 [culture] Culture on all Marine tiles. +30% [production] Production towards constructing Hale o Keawe.",
+        attributes: "Cultural, Expansionist",
+        units: [
+            "Leiomano — infantry, strong against cavalry and defending against heavy naval units",
+            "Kahuna — support unit that heals all adjacent units"
+        ],
+        infrastructure: [
+            "Lo'i Kalo — improvement; [food] Food and [production] Production, [culture] Culture from adjacent Fishing Boats"
+        ],
+        civic: "Mana, Ohana, He'e nalu"
+    },
+    "Iceland": {
+        ability_name: "Kringla Heimsins",
+        ability: "+1 Sight on Naval Units. Gain 500 [culture] Culture when you discover a Natural Wonder in Distant Lands. Gain a Relic every time you complete a Civic Mastery. -50% [production] Production towards training Missionaries, and their [gold] Gold cost is doubled. +30% [production] Production towards constructing Reykjaholt.",
+        attributes: "Cultural, Militaristic",
+        units: [
+            "Víkingr — raider earning [science] Science from coastal pillaging",
+            "Saga Hero — unique Great Person"
+        ],
+        infrastructure: [
+            "Þingstaðr — improvement; [happiness] Happiness plus [culture] Culture from wet, volcanic, or vegetated neighbors"
+        ],
+        civic: "Landnámabók, Hugins Drekka, Væringjar, Þjóðveldið"
+    },
+    "Inca": {
+        ability_name: "Apus",
+        ability: "Can work Mountain tiles. +2 [food] Food and +1 [production] Production on Mountain tiles. Can generate Homelands Treasure Convoys worth 2 Cargo each in Cities with 3 worked Mountains after completing the Qhapaq Ñan Civic. +30% [production] Production towards constructing Machu Pikchu.",
+        attributes: "Economic, Expansionist",
+        units: [
+            "Warak'aq — fast skirmisher, stronger attacking from rough terrain",
+            "Chasqui — scout that sees past Mountains"
+        ],
+        infrastructure: [
+            "Terrace Farm — improvement; [food] Food plus [gold] Gold to adjacent buildings"
+        ],
+        civic: "Mit'a, Ayllu, Qhapaq Ñan"
+    },
+    "Majapahit": {
+        ability_name: "Negara",
+        ability: "Culture Buildings gain an adjacency for Coastal tiles. +1 Specialist Limit in Districts on or adjacent to Coastal tiles. +30% [production] Production towards constructing Borobudur.",
+        attributes: "Cultural, Expansionist",
+        units: [
+            "Cetbang — naval unit, strong against ships and pillaging at range",
+            "Pedanda — missionary earning [culture] Culture and [gold] Gold on first conversions"
+        ],
+        infrastructure: [
+            "Pura — quarter granting a Relic when completed",
+            "Meru — [happiness] Happiness building, stronger near Natural Wonders and Mountains",
+            "Candi Bentar — [culture] Culture building with coastal/river adjacency"
+        ],
+        civic: "Wayang, Aliran Kepercayaan, Nusantara"
+    },
+    "Ming China": {
+        ability_name: "Great Canon of Yongle",
+        ability: "+50% [science] Science in the Capital. -15 [science] Science per turn for each Social Policy, but not Tradition, in the Government. +1 Tradition slot. +30% [production] Production towards constructing the Forbidden City.",
+        attributes: "Economic, Scientific",
+        units: [
+            "Xunleichong — ranged infantry, stronger on featureless tiles",
+            "Maritime Envoy — merchant spawning Treasure Convoys from naval Trade Routes"
+        ],
+        infrastructure: [
+            "Ming Great Wall — fortified improvement; [culture] Culture, [gold] Gold per adjacent fortification, and Tourism"
+        ],
+        civic: "Nine Garrisons, Lijia, Da Ming Lu"
+    },
+    "Mongolia": {
+        ability_name: "Bokh",
+        ability: "When you capture an opposing Settlement, gain the strongest Cavalry unit you can currently train. -50% [production] Production towards training Settlers. +30% [production] Production towards constructing Erdene Zuu.",
+        attributes: "Expansionist, Militaristic",
+        units: [
+            "Keshig — cavalry that speeds up and heals after kills",
+            "Noyan — commander granting cavalry a bigger flanking bonus"
+        ],
+        infrastructure: [
+            "Örtöö — improvement; [gold] Gold, restores Movement to units entering the tile"
+        ],
+        civic: "Ulus, Four Hounds, Yassa"
+    },
+    "Normans": {
+        ability_name: "Normannitas",
+        ability: "+5 Combat Strength for Land Units and Fortified Districts adjacent to Coast. +25 HP on Fortified Districts. +30% [production] Production towards constructing the White Tower.",
+        attributes: "Diplomatic, Militaristic",
+        units: [
+            "Chevaler — knight, stronger against slower units",
+            "Sokeman — settler whose new towns start with a Wall"
+        ],
+        infrastructure: [
+            "Donjon — quarter; free Chevaler on completion, faster cavalry [production] Production",
+            "Bailey — [culture] Culture building that counts as a fortification",
+            "Motte — [happiness] Happiness building, stronger on rough terrain"
+        ],
+        civic: "Consuetudines et Justicie, Common Law, Domesday Book"
+    },
+    "Republic of Pirates": {
+        ability_name: "Flying Gang",
+        ability: "Naval Units, Treasure Convoys, and the Buccaneer can move into other civilizations' borders without being at War or having Open Borders. Buccaneers gain 1 charge to create a new Settlement after receiving their first Promotion. Settlers cannot be trained or purchased, but you can capture other civilizations' Settlers. +5 [gold] Gold from your Naval Units defeating other Units. +30% [production] Production towards constructing Havana Harbor.",
+        attributes: "Economic, Militaristic",
+        units: [
+            "Sloop — border-crossing raider earning [gold] Gold from kills",
+            "Buccaneer — promotable founder unit with raiding-party charges"
+        ],
+        infrastructure: [
+            "Haven — quarter; [gold] Gold per Treasure Resource, heals friendly ships",
+            "Naval Arsenal — [gold] Gold building with resource adjacency",
+            "Naval Station — [production] Production building with military/gold adjacency"
+        ],
+        civic: "Articles of Agreement, Ports of Call, Enemy of All Nations"
+    },
+    "Sengoku Japan": {
+        ability_name: "Shogunate",
+        ability: "+1 [influence] Influence, +3 [culture] Culture, and +3 [science] Science for every Army Commander XP earned in Combat. Culture Buildings no longer receive an Adjacency with Mountains. Science Buildings no longer receive an Adjacency with Resources. +30% [production] Production towards constructing Himeji Castle.",
+        attributes: "Diplomatic, Militaristic",
+        units: [
+            "Samurai — infantry that self-upgrades after three kills",
+            "Shinobi — stealth unit that can sabotage enemy Army Commanders"
+        ],
+        infrastructure: [
+            "Tea House — improvement; [food] Food, [happiness] Happiness, and [culture] Culture per adjacent district"
+        ],
+        civic: "Tenka Bito, Ikki, Rakuichi-Rakuza, Kinsei"
+    },
+    "Shawnee": {
+        ability_name: "Nepekifaki",
+        ability: "+2 [food] Food on Improvements and Districts on Minor and Navigable River tiles in Settlements adjacent to Navigable Rivers. +1 Resource Capacity in the Capital per City-State you are Suzerain of. +30% [production] Production towards constructing Serpent Mound.",
+        attributes: "Diplomatic, Economic",
+        units: [
+            "Kispoko Nena'to — infantry, stronger per unique Resource in your empire",
+            "Hoceepkileni — fast scout for whom rivers don't end movement"
+        ],
+        infrastructure: [
+            "Mawaskawe Skote — improvement; [food] Food plus [gold] Gold per adjacent Resource"
+        ],
+        civic: "Wiyehi Simekofi, Miyaska Latoweki, Telwatiki, Maleki Kintake"
+    },
+    "Songhai": {
+        ability_name: "Tarikh al-Sudan",
+        ability: "+2 Resource Capacity in Cities on Navigable Rivers. +1 [production] Production in Cities on Navigable Rivers for every Resource assigned to them. Can generate Homelands Treasure Convoys worth 2 Cargo each on Navigable Rivers after completing the Kanta Civic. +30% [production] Production towards constructing the Tomb of Askia.",
+        attributes: "Economic, Militaristic",
+        units: [
+            "Gold Bangles Infantry — stronger on Resource tiles, better trade-route pillaging",
+            "Tajiro — merchant earning [gold] Gold from river Trade Routes"
+        ],
+        infrastructure: [
+            "Caravanserai — improvement; [gold] Gold with river/resource adjacency, extends trade range"
+        ],
+        civic: "Ships of the Desert, Hi-Koi, Kanta"
+    },
+    "Spain": {
+        ability_name: "Siglo de Oro",
+        ability: "+2 [food] Food, [gold] Gold, and [production] Production in Settlements adjacent to Coast and in Settlements following your Religion, or +4 if it is both, doubled in Distant Lands. +15% [gold] Gold efficiency towards converting a Town to a City, or +30% in Distant Lands. +30% [production] Production towards constructing El Escorial.",
+        attributes: "Economic, Militaristic",
+        units: [
+            "Tercio — infantry granting nearby units anti-cavalry strength",
+            "Conquistador — unique Great Person, trainable in settlements with a Plaza"
+        ],
+        infrastructure: [
+            "Plaza — quarter; [gold] Gold per Distant Lands settlement",
+            "Casa Consistorial — [culture] Culture building with quarter adjacency",
+            "Casa de Contratación — [gold] Gold building with resource/river adjacency"
+        ],
+        civic: "Council of the Indies, Armada, New World Riches"
+    },
+    // ---------- Modern Age ----------
+    "America": {
+        ability_name: "Frontier Expansion",
+        ability: "Gain 150 [gold] Gold every time you improve a Resource. +1 [production] Production on Resources. +30% [production] Production towards building the Statue of Liberty.",
+        attributes: "Diplomatic, Economic",
+        units: [
+            "Marine — amphibious infantry with no embarkation penalties",
+            "Prospector — civilian that claims a nearby land Resource"
+        ],
+        infrastructure: [
+            "Industrial Park — quarter; GDP from Factory Resources in this settlement",
+            "Railyard — [production] Production building with quarter/Wonder adjacency",
+            "Steel Mill — [production] Production building; [gold] Gold per adjacent Resource"
+        ],
+        civic: "Yankee Ingenuity, Captains of Industry, Wartime Manufacturing"
+    },
+    "Buganda": {
+        ability_name: "River Raids",
+        ability: "Receive additional [culture] Culture when Pillaging Buildings or Improvements equal to the yield or healing gained. Land Units gain the Amphibious keyword. +6 [food] Food and +6 [culture] Culture on Lakes. +1 Tourism from Districts and Improvements on Lakes. +30% [production] Production towards constructing Muzibu Azaala Mpanga.",
+        attributes: "Cultural, Expansionist",
+        units: [
+            "Abambowa — infantry that heals from pillaging",
+            "Mwami — army commander doubling pillage yields in its radius"
+        ],
+        infrastructure: [
+            "Kabaka's Lake — improvement; [happiness] Happiness, counts as a Lake for adjacency"
+        ],
+        civic: "'Nnalubaale, Blutabaalo, Nyanza"
+    },
+    "French Empire": {
+        ability_name: "Liberté, Egalité, Fraternité",
+        ability: "You can select the Celebration effects of any standard Government in the Modern Age. +30% [production] Production towards constructing the Eiffel Tower.",
+        attributes: "Cultural, Diplomatic",
+        units: [
+            "Garde Impériale — infantry, stronger inside a friendly commander's radius",
+            "Jacobin — unique Great Person"
+        ],
+        infrastructure: [
+            "Avenue — quarter; [happiness] Happiness on this city's quarters",
+            "Salon — [happiness] Happiness building with [culture] Culture adjacency",
+            "Jardin à la Française — [culture] Culture building with [happiness] Happiness adjacency"
+        ],
+        civic: "Belle Époque, Voie Triomphale, Grande Armée, Code Civil des Français"
+    },
+    "Great Britain": {
+        ability_name: "Workshop of the World",
+        ability: "+25% [gold] Gold towards purchasing Buildings and +25% [production] Production towards constructing Buildings. +50% cost to convert Towns into Cities. +3 [science] Science on Active Buildings adjacent to Coast. +30% [production] Production towards the Battersea Power Station Wonder.",
+        attributes: "Economic, Scientific",
+        units: [
+            "Revenge — fast naval unit dealing splash damage",
+            "Antiquarian — explorer earning [culture] Culture from distant excavations"
+        ],
+        infrastructure: [
+            "Financial Centre — quarter; [gold] Gold and [science] Science per connected settlement",
+            "Royal Exchange — [gold] Gold building with quarter/Wonder adjacency",
+            "Manufactory — [production] Production building; [gold] Gold along navigable rivers"
+        ],
+        civic: "Pax Britannica, Society of Antiquaries, Chartered Companies, Splendid Isolation"
+    },
+    "Joseon": {
+        ability_name: "Munchi",
+        ability: "+2 Specialist Limit in the Capital and other Cities with a Seowon. -1 Specialist Limit in all Cities other than the Capital without a Seowon. Has an initial City Limit of 2. Can purchase Tier 1 [science] Science and [culture] Culture Buildings in Towns. +30% [production] Production towards constructing Hwaseong.",
+        attributes: "Cultural, Expansionist",
+        units: [
+            "Turtle Ship — heavy naval unit, stronger on Coast",
+            "Jangyongyoung — army commander boosting units defending the Capital"
+        ],
+        infrastructure: [
+            "Seowon — quarter; the settlement gains [culture] Culture from its [production] Production",
+            "Confucian Academy — [culture] Culture building, purchasable in Towns",
+            "Printing House — [science] Science building, purchasable in Towns"
+        ],
+        civic: "Seonbi, Seongnihak, Gyeongguk Daejeon, Samgang"
+    },
+    "Meiji Japan": {
+        ability_name: "Goisshin",
+        ability: "When you overbuild a Building, receive [science] Science equal to 25% of the new building's [production] Production cost. +30% [production] Production towards constructing Dogo Onsen.",
+        attributes: "Militaristic, Scientific",
+        units: [
+            "Mikasa — battleship that respawns once when destroyed",
+            "Zero — long-range fighter, stronger against other fighters"
+        ],
+        infrastructure: [
+            "Zaibatsu — quarter; adjacent buildings gain [gold] Gold and [production] Production",
+            "Ginkō — [gold] Gold building with gold-building adjacency",
+            "Jukogyo — [production] Production building with coastal adjacency"
+        ],
+        civic: "Bunmei Kaika, Oath in Five Articles, Supreme War Council, Kantai Kessen"
+    },
+    "Mexico": {
+        ability_name: "Revolución",
+        ability: "Starts with the unique Revolución Government: +2 [happiness] Happiness per Age in Cities for each slotted Tradition, and Celebrations grant [culture] Culture in Happy Settlements. Cannot adopt any other Government. +100% Tourism from Celebrations. +30% [production] Production towards constructing Palacio de Bellas Artes.",
+        attributes: "Cultural, Diplomatic",
+        units: [
+            "Soldaderas — support unit healing adjacent units each turn",
+            "Revolucionario — unique Great Person"
+        ],
+        infrastructure: [
+            "Zócalo — quarter; [culture] Culture per slotted Tradition",
+            "Catedral — [happiness] Happiness building with [culture] Culture adjacency",
+            "Portal de Mercaderes — [culture] Culture building with [gold] Gold adjacency"
+        ],
+        civic: "Planes Políticos, Plan of Iguala, Plan of Ayutla, Plan of Tuxtepec"
+    },
+    "Mughal India": {
+        ability_name: "Paradise of Nations",
+        ability: "+100% [gold] Gold from all sources. -25% to all other yields except [food] Food. Can purchase Wonders with [gold] Gold, but they are 150% more expensive. +30% [production] Production towards the Red Fort Wonder.",
+        attributes: "Economic, Expansionist",
+        units: [
+            "Sepoy — infantry with a ranged bombard attack",
+            "Zamindar — civilian granting extra Population to new Towns"
+        ],
+        infrastructure: [
+            "Stepwell — improvement; [food] Food, more from adjacent Farms"
+        ],
+        civic: "Zabt, Jagir, Mansabdari, Gardens of Paradise"
+    },
+    "Nepal": {
+        ability_name: "Roof of the World",
+        ability: "Can work Mountain tiles. All Warehouse buildings apply to Mountain tiles, but they cost +1 [gold] Gold and [happiness] Happiness Maintenance. +1 Tourism from Unique Improvements on Mountains. +30% [production] Production towards constructing the Boudhanath.",
+        attributes: "Diplomatic, Cultural",
+        units: [
+            "Gurkha — fast, hard-hitting infantry",
+            "Sherpa — scout that crosses Mountains and claims them"
+        ],
+        infrastructure: [
+            "Highland Power Station — mountain improvement; [production] Production and [culture] Culture"
+        ],
+        civic: "Jyumdo Bagha, Singha Durbar, Gorkhapatra"
+    },
+    "Ottomans": {
+        ability_name: "Devlet-i ʿAlīye-i ʿOsmānīye",
+        ability: "When any Leader excavates an Artifact in the Ottomans' territory, they generate an additional Artifact. +3 Combat Strength for Infantry Units and Siege Units when attacking. +30% [production] Production towards constructing Sultanahmet Camii.",
+        attributes: "Cultural, Militaristic",
+        units: [
+            "Janissary — elite infantry that unsettles everyone's [happiness] Happiness",
+            "Barbary Corsair — naval raider with free Coastal Raids"
+        ],
+        infrastructure: [
+            "Külliye — quarter; [culture] Culture and [gold] Gold on this city's Specialists",
+            "Cami — [culture] Culture building with Great Work slots",
+            "Hammam — [happiness] Happiness building with [gold] Gold adjacency"
+        ],
+        civic: "Şahi Topu, Harbiye Nezâreti, Lâle Devri, Tanẓîmât"
+    },
+    "Prussia": {
+        ability_name: "Blood and Iron",
+        ability: "Units receive +1 Combat Strength for every Unfriendly or worse Relationship with other civilizations. You may establish and retain Trade Routes with civilizations that you are at War with. +30% [production] Production towards constructing Brandenburg Gate.",
+        attributes: "Militaristic, Diplomatic",
+        units: [
+            "Hussar — cavalry, stronger per unspent Movement point",
+            "Stuka — ground-attack aircraft, strong against land units"
+        ],
+        infrastructure: [
+            "Staatseisenbahn — unique railroad; [gold] Gold and [production] Production on its rural tiles"
+        ],
+        civic: "Ruhr, Zollverein, Ems Dispatch, Bewegungskrieg"
+    },
+    "Qajar": {
+        ability_name: "Kayānī Crown",
+        ability: "+50% [influence] Influence toward supporting Diplomatic Actions. +10 [food] Food and [production] Production in the Capital for every Settlement under the Settlement Limit. +30% [production] Production towards constructing Eram Garden.",
+        attributes: "Diplomatic, Expansionist",
+        units: [
+            "Gholām — infantry, stronger and faster-healing near a Sardār",
+            "Sardār — fast commander that razes districts quicker"
+        ],
+        infrastructure: [
+            "Bāq — quarter; [influence] Influence and [culture] Culture during Celebrations",
+            "Ghahve Khane — [food] Food building with [happiness] Happiness adjacency",
+            "Takyeh — [happiness] Happiness building with [influence] Influence adjacency"
+        ],
+        civic: "The Sun Throne, Twelve Gates, Neẓām-e J̌adīd"
+    },
+    "Qing China": {
+        ability_name: "Kang Qian Shengshi",
+        ability: "+3 [gold] Gold and +3 [culture] Culture for every imported Resource. -6 [science] Science for every Trade Route. +1 GDP per turn for imported Resources assigned to Cities. +1 Combat Strength for Land Units for every other civilization you have a Trade Route with. +30% [production] Production towards constructing Chengde Mountain Resort.",
+        attributes: "Economic, Expansionist",
+        units: [
+            "Gusa — infantry, stronger adjacent to other Gusa",
+            "Hangshang — merchant earning extra [gold] Gold from naval Trade Routes"
+        ],
+        infrastructure: [
+            "Huiguan — quarter; +25% [influence] Influence in this settlement",
+            "Shiguan — [science] Science building with [happiness] Happiness adjacency",
+            "Qianzhuang — [gold] Gold building with gold-building adjacency"
+        ],
+        civic: "Ten Great Campaigns, Open Customs, Kang Xi Tax Reformation, Stabilizing Frontier"
+    },
+    "Russia": {
+        ability_name: "Prosveshchenie",
+        ability: "+1 [culture] Culture on Quarters in Cities, and +1 [science] Science on Quarters in Cities on Tundra. +1 [food] Food on Farms in Towns, and +1 [production] Production on Farms in Towns on Tundra, counting as a Warehouse bonus. +30% [production] Production towards constructing the Hermitage.",
+        attributes: "Cultural, Scientific",
+        units: [
+            "Cossack — cavalry, stronger in friendly territory",
+            "Katyusha Rocket Launcher — fast, long-range siege unit with splash damage"
+        ],
+        infrastructure: [
+            "Obshchina — improvement; [food] Food on this settlement's Farms, [culture] Culture on Tundra"
+        ],
+        civic: "Serfdom, Table of Ranks, Samoderzhaviye"
+    },
+    "Siam": {
+        ability_name: "Itsaraphab",
+        ability: "Gains a unique Diplomatic Action to immediately become Suzerain of a City-State at a higher [influence] Influence cost than Befriend Independent. +3 [influence] Influence for every civilization you are Friendly or Helpful with. +12 Tourism for every City-State you are Suzerain of. +30% [production] Production towards constructing Doi Suthep.",
+        attributes: "Cultural, Diplomatic",
+        units: [
+            "Chang Beun — ranged war elephant that attacks twice per turn",
+            "Uparat — unique Great Person"
+        ],
+        infrastructure: [
+            "Bang — improvement; [culture] Culture and [happiness] Happiness"
+        ],
+        civic: "Nine Gems, Mandala, Sriwilai"
     }
 };
 

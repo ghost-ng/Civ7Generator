@@ -228,8 +228,8 @@
         }
         .dlc-mode-label.active { color: var(--brass-bright); }
         /* Mode switch: both positions are valid modes, so the track stays neutral */
-        #dlc-mode:checked { background: rgba(9, 14, 24, 0.85); }
-        #dlc-mode::before { background: var(--brass-bright); }
+        .mode-switch:checked { background: rgba(9, 14, 24, 0.85); }
+        .mode-switch::before { background: var(--brass-bright); }
 
         .dlc-select summary {
             list-style: none;
@@ -412,6 +412,7 @@
         .plaque-line { color: var(--slate); margin: 0; }
         .plaque-line strong { color: var(--parchment); font-weight: 600; }
         .plaque-line .leader { color: var(--brass-bright); }
+        .plaque-line .plaque-age { color: var(--slate); font-size: 0.85em; }
 
         /* ---------- Footer ---------- */
         footer {
@@ -536,13 +537,26 @@
             <div class="section-label">DLC Content</div>
             <div class="toggle-row dlc-mode-row">
                 <span class="dlc-mode-label active" id="dlc-mode-label-remove">Remove</span>
-                <input class="switch" type="checkbox" id="dlc-mode" aria-label="Toggle between removing checked DLC and keeping only checked DLC">
+                <input class="switch mode-switch" type="checkbox" id="dlc-mode" aria-label="Toggle between removing checked DLC and keeping only checked DLC">
                 <span class="dlc-mode-label" id="dlc-mode-label-keep">Keep only</span>
                 <span class="toggle-hint" id="dlc-mode-hint">— checked packs are excluded</span>
             </div>
             <details class="dlc-select" id="dlc-select">
                 <summary id="dlc-summary">No DLC removed</summary>
                 <div class="dlc-options" id="dlc-options"></div>
+            </details>
+
+            <!-- Ages -->
+            <div class="section-label">Ages</div>
+            <div class="toggle-row dlc-mode-row">
+                <span class="dlc-mode-label active" id="age-mode-label-remove">Remove</span>
+                <input class="switch mode-switch" type="checkbox" id="age-mode" aria-label="Toggle between removing checked ages and keeping only checked ages">
+                <span class="dlc-mode-label" id="age-mode-label-keep">Keep only</span>
+                <span class="toggle-hint" id="age-mode-hint">— checked ages are excluded</span>
+            </div>
+            <details class="dlc-select" id="age-select">
+                <summary id="age-summary">No ages removed</summary>
+                <div class="dlc-options" id="age-options"></div>
             </details>
 
             <!-- Options -->
@@ -575,12 +589,61 @@
 
     <script src="data/bonuses.js"></script>
     <script>
-    const civList = [
-        "Aksum", "Assyria", "Egypt", "Greece", "Han China",
-        "Heian Japan", "Khmer", "Maurya India", "Maya",
-        "Mississippians", "Persia", "Rome", "Carthage",
-        "Silla", "Tonga"
-    ];
+    // Every civ with the age it belongs to (its apex age). The Ages filter
+    // works off these values; civList is derived so the rest of the app keeps
+    // treating civs as a flat list of names.
+    const civAges = {
+        "Aksum": "Antiquity",
+        "Assyria": "Antiquity",
+        "Carthage": "Antiquity",
+        "Egypt": "Antiquity",
+        "Greece": "Antiquity",
+        "Han China": "Antiquity",
+        "Heian Japan": "Antiquity",
+        "Khmer": "Antiquity",
+        "Maurya India": "Antiquity",
+        "Maya": "Antiquity",
+        "Mississippians": "Antiquity",
+        "Persia": "Antiquity",
+        "Rome": "Antiquity",
+        "Silla": "Antiquity",
+        "Tonga": "Antiquity",
+        "Abbasid": "Exploration",
+        "Bulgaria": "Exploration",
+        "Chola India": "Exploration",
+        "Dai Viet": "Exploration",
+        "Goryeo": "Exploration",
+        "Hawaii": "Exploration",
+        "Iceland": "Exploration",
+        "Inca": "Exploration",
+        "Majapahit": "Exploration",
+        "Ming China": "Exploration",
+        "Mongolia": "Exploration",
+        "Normans": "Exploration",
+        "Republic of Pirates": "Exploration",
+        "Sengoku Japan": "Exploration",
+        "Shawnee": "Exploration",
+        "Songhai": "Exploration",
+        "Spain": "Exploration",
+        "America": "Modern",
+        "Buganda": "Modern",
+        "French Empire": "Modern",
+        "Great Britain": "Modern",
+        "Joseon": "Modern",
+        "Meiji Japan": "Modern",
+        "Mexico": "Modern",
+        "Mughal India": "Modern",
+        "Nepal": "Modern",
+        "Ottomans": "Modern",
+        "Prussia": "Modern",
+        "Qajar": "Modern",
+        "Qing China": "Modern",
+        "Russia": "Modern",
+        "Siam": "Modern"
+    };
+
+    const AGES = ["Antiquity", "Exploration", "Modern"];
+    const civList = Object.keys(civAges);
 
     const leaderDict = {
         "Alexander the Great": "assets/Civ7_Leader_Images/CIV7-BASE-FIRSTLOOK_ALEXANDER-STATIC-ENUS-NO_RATING-AGN-1920x1080-R1.jpg",
@@ -624,14 +687,14 @@
     // DLC packs that added civs/leaders present in this app. Civs and leaders
     // from free updates (Gilgamesh, Alexander) count as base and aren't listed.
     const dlcPacks = [
-        { id: "tecumseh",    name: "Tecumseh & Shawnee Pack",        civs: [],                    leaders: ["Tecumseh"] },
-        { id: "deluxe",      name: "Deluxe Edition Content",         civs: [],                    leaders: ["Friedrich (Baroque)", "Xerxes (The Achaemenid)"] },
-        { id: "founders",    name: "Founder's Edition Content",      civs: [],                    leaders: ["Ashoka (World Conqueror)", "Himiko (High Shaman)"] },
-        { id: "napoleon",    name: "Napoleon (2K Account Rewards)",  civs: [],                    leaders: ["Napoleon (Revolutionary)", "Napoleon (Emperor)"] },
-        { id: "crossroads",  name: "Crossroads of the World",        civs: ["Carthage"],          leaders: ["Ada Lovelace", "Simón Bolívar"] },
-        { id: "righttorule", name: "Right to Rule",                  civs: ["Assyria", "Silla"],  leaders: ["Genghis Khan", "Lakshmibai"] },
-        { id: "tides",       name: "Tides of Power",                 civs: ["Tonga"],             leaders: ["Edward Teach", "Sayyida al Hurra"] },
-        { id: "brushblade",  name: "Brush & Blade",                  civs: ["Heian Japan"],       leaders: ["Toyotomi Hideyoshi", "Yi Sun-sin"] }
+        { id: "tecumseh",    name: "Tecumseh & Shawnee Pack",        civs: ["Shawnee"],                                                       leaders: ["Tecumseh"] },
+        { id: "deluxe",      name: "Deluxe Edition Content",         civs: [],                                                                leaders: ["Friedrich (Baroque)", "Xerxes (The Achaemenid)"] },
+        { id: "founders",    name: "Founder's Edition Content",      civs: [],                                                                leaders: ["Ashoka (World Conqueror)", "Himiko (High Shaman)"] },
+        { id: "napoleon",    name: "Napoleon (2K Account Rewards)",  civs: [],                                                                leaders: ["Napoleon (Revolutionary)", "Napoleon (Emperor)"] },
+        { id: "crossroads",  name: "Crossroads of the World",        civs: ["Carthage", "Bulgaria", "Nepal", "Great Britain"],                leaders: ["Ada Lovelace", "Simón Bolívar"] },
+        { id: "righttorule", name: "Right to Rule",                  civs: ["Assyria", "Silla", "Dai Viet", "Qajar"],                         leaders: ["Genghis Khan", "Lakshmibai"] },
+        { id: "tides",       name: "Tides of Power",                 civs: ["Tonga", "Republic of Pirates", "Iceland", "Ottomans"],           leaders: ["Edward Teach", "Sayyida al Hurra"] },
+        { id: "brushblade",  name: "Brush & Blade",                  civs: ["Heian Japan", "Sengoku Japan", "Goryeo", "Joseon"],              leaders: ["Toyotomi Hideyoshi", "Yi Sun-sin"] }
     ];
 
     function buildDlcOptions() {
@@ -685,9 +748,61 @@
         updateDlcSummary();
     }
 
+    // ---------- Ages filter (same Remove / Keep-only semantics as DLC) ----------
+
+    function buildAgeOptions() {
+        const container = document.getElementById("age-options");
+        container.innerHTML = AGES.map(age => `
+            <label class="dlc-option">
+                <input type="checkbox" class="age-exclude" value="${age}">
+                <span><span class="dlc-name">${age} Age</span>
+                <span class="toggle-hint">${civList.filter(civ => civAges[civ] === age).length} civilizations</span></span>
+            </label>`).join("");
+        container.addEventListener("change", updateAgeSummary);
+    }
+
+    function isAgeKeepMode() {
+        return document.getElementById("age-mode").checked;
+    }
+
+    function getExcludedAges() {
+        const checked = [...document.querySelectorAll(".age-exclude:checked")].map(cb => cb.value);
+        return isAgeKeepMode()
+            ? AGES.filter(age => !checked.includes(age))
+            : AGES.filter(age => checked.includes(age));
+    }
+
+    function updateAgeSummary() {
+        const checkedCount = document.querySelectorAll(".age-exclude:checked").length;
+        let text;
+        if (isAgeKeepMode()) {
+            text = checkedCount === AGES.length ? "All ages kept"
+                 : checkedCount === 0 ? "No ages kept — check at least one"
+                 : `Keeping ${checkedCount} age${checkedCount > 1 ? "s" : ""}`;
+        } else {
+            text = checkedCount === 0 ? "No ages removed"
+                 : checkedCount === AGES.length ? "All ages removed"
+                 : `${checkedCount} age${checkedCount > 1 ? "s" : ""} removed`;
+        }
+        document.getElementById("age-summary").textContent = text;
+    }
+
+    function updateAgeMode() {
+        const keep = isAgeKeepMode();
+        document.getElementById("age-select").classList.toggle("keep-mode", keep);
+        document.getElementById("age-mode-label-remove").classList.toggle("active", !keep);
+        document.getElementById("age-mode-label-keep").classList.toggle("active", keep);
+        document.getElementById("age-mode-hint").textContent = keep
+            ? "— only checked ages are included"
+            : "— checked ages are excluded";
+        updateAgeSummary();
+    }
+
     function getActiveCivs() {
         const excludedCivs = getExcludedPacks().flatMap(pack => pack.civs);
-        return civList.filter(civ => !excludedCivs.includes(civ));
+        const excludedAges = getExcludedAges();
+        return civList.filter(civ => !excludedCivs.includes(civ)
+            && !excludedAges.includes(civAges[civ]));
     }
 
     function getActiveLeaders() {
@@ -696,8 +811,10 @@
     }
 
     buildDlcOptions();
+    buildAgeOptions();
 
     document.getElementById("dlc-mode").addEventListener("change", updateDlcMode);
+    document.getElementById("age-mode").addEventListener("change", updateAgeMode);
     // The mode words act as buttons: clicking one selects that mode
     document.getElementById("dlc-mode-label-remove").addEventListener("click", () => {
         document.getElementById("dlc-mode").checked = false;
@@ -706,6 +823,14 @@
     document.getElementById("dlc-mode-label-keep").addEventListener("click", () => {
         document.getElementById("dlc-mode").checked = true;
         updateDlcMode();
+    });
+    document.getElementById("age-mode-label-remove").addEventListener("click", () => {
+        document.getElementById("age-mode").checked = false;
+        updateAgeMode();
+    });
+    document.getElementById("age-mode-label-keep").addEventListener("click", () => {
+        document.getElementById("age-mode").checked = true;
+        updateAgeMode();
     });
 
     // Internal game IDs (verified against Civ VII game files) for the mod-code
@@ -716,7 +841,19 @@
         "Han China": "HAN", "Heian Japan": "HEIAN", "Khmer": "KHMER",
         "Maurya India": "MAURYA", "Maya": "MAYA", "Mississippians": "MISSISSIPPIAN",
         "Persia": "PERSIA", "Rome": "ROME", "Carthage": "CARTHAGE",
-        "Silla": "SILLA", "Tonga": "TONGA"
+        "Silla": "SILLA", "Tonga": "TONGA",
+        "Abbasid": "ABBASID", "Bulgaria": "BULGARIA", "Chola India": "CHOLA",
+        "Dai Viet": "DAI_VIET", "Goryeo": "GORYEO" /* inferred, not yet verified in game files */,
+        "Hawaii": "HAWAII", "Iceland": "ICELAND", "Inca": "INCA",
+        "Majapahit": "MAJAPAHIT", "Ming China": "MING", "Mongolia": "MONGOLIA",
+        "Normans": "NORMAN", "Republic of Pirates": "PIRATE_REPUBLIC",
+        "Sengoku Japan": "SENGOKU", "Shawnee": "SHAWNEE", "Songhai": "SONGHAI",
+        "Spain": "SPAIN",
+        "America": "AMERICA", "Buganda": "BUGANDA", "French Empire": "FRENCH_EMPIRE",
+        "Great Britain": "GREAT_BRITAIN", "Joseon": "JOSEON", "Meiji Japan": "MEIJI",
+        "Mexico": "MEXICO", "Mughal India": "MUGHAL", "Nepal": "NEPAL",
+        "Ottomans": "OTTOMANS", "Prussia": "PRUSSIA", "Qajar": "QAJAR",
+        "Qing China": "QING", "Russia": "RUSSIA", "Siam": "SIAM"
     };
 
     const leaderIds = {
@@ -751,7 +888,13 @@
             }
             return `${a.role}:${leaderId}:${civId}`;
         });
-        return ["C7L1", "ANTIQUITY", ...entries].join(";");
+        // A Civ VII game runs one age at a time, so the code carries a single
+        // age token — derived from the assigned civs, not the filter UI.
+        const ages = [...new Set(lastAssignment.map(a => civAges[a.civ]))];
+        if (ages.length !== 1) {
+            throw new Error("The results mix civs from different ages, which a single game can't use — keep only one age and regenerate to export a mod code.");
+        }
+        return ["C7L1", ages[0].toUpperCase(), ...entries].join(";");
     }
 
     function copyModCode() {
@@ -847,7 +990,7 @@
             <div class="plaque-tag">${isHuman ? "Human" : "AI Opponent"}</div>
             <div class="portrait"><span class="corner"></span><img src="${leaderDict[leader]}" alt="${leader}"></div>
             <div class="plaque-name">${name}</div>
-            <p class="plaque-line">plays <strong>${tipSpan(civ, "civ")}</strong> led by <strong class="leader">${tipSpan(leader, "leader")}</strong></p>
+            <p class="plaque-line">plays <strong>${tipSpan(civ, "civ")}</strong> <span class="plaque-age">(${civAges[civ]})</span> led by <strong class="leader">${tipSpan(leader, "leader")}</strong></p>
         </div>`;
     }
 
@@ -874,7 +1017,7 @@
         let activeCivs = getActiveCivs();
         let totalPlayers = playerNames.length + aiPlayers;
         if (totalPlayers > activeCivs.length) {
-            showError(`Only ${activeCivs.length} civilizations are available with the current DLC selection — reduce players, AI, or removed DLC (requested ${totalPlayers}).`);
+            showError(`Only ${activeCivs.length} civilizations are available with the current DLC and age selection — reduce players, AI, or removed content (requested ${totalPlayers}).`);
             return;
         }
         if (totalPlayers > getActiveLeaders().length) {

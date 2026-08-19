@@ -7,7 +7,7 @@ Scrapes (stdlib only, no dependencies):
   - https://civilization.2k.com/civ-vii/content-collections/       -> DLC collection contents
 
 Writes data/registry.json and prints a drift report comparing the registry
-against the data embedded in index.html (civList / leaderDict / dlcPacks).
+against the data embedded in index.html (civAges / leaderDict / dlcPacks).
 
 Exit codes: 0 = ok (registry may have been updated), 1 = fetch/parse failure.
 Drift does not affect the exit code; the workflow reads drift-report.md.
@@ -60,6 +60,8 @@ ALIASES = {
     "hawaii": "hawai'i",
     "chola india": "chola",
     "sengoku": "sengoku japan",
+    "mongolian": "mongolia",
+    "norman": "normans",
     "catherine the great": "catherine",
     "edward teach": "blackbeard",
 }
@@ -324,9 +326,12 @@ def parse_collections(page: str) -> list[dict]:
 
 
 def parse_app_data(index_html: str) -> dict:
-    """Pull civList, leaderDict keys, and dlcPacks out of index.html."""
-    civ_m = re.search(r"const civList = \[(.*?)\];", index_html, re.S)
-    civs = re.findall(r'"([^"]+)"', civ_m.group(1)) if civ_m else []
+    """Pull civAges, leaderDict keys, and dlcPacks out of index.html."""
+    # civList is derived from civAges in the app, so the map is the source of
+    # truth for both the roster and each civ's age.
+    civ_m = re.search(r"const civAges = \{(.*?)\};", index_html, re.S)
+    civ_ages = dict(re.findall(r'^\s*"([^"]+)": "([^"]+)"', civ_m.group(1), re.M)) if civ_m else {}
+    civs = list(civ_ages)
 
     dict_m = re.search(r"const leaderDict = \{(.*?)\};", index_html, re.S)
     leaders = re.findall(r'^\s*"([^"]+)":', dict_m.group(1), re.M) if dict_m else []
@@ -340,7 +345,7 @@ def parse_app_data(index_html: str) -> dict:
                 "civs": re.findall(r'"([^"]+)"', pm.group(2)),
                 "leaders": re.findall(r'"([^"]+)"', pm.group(3)),
             })
-    return {"civs": civs, "leaders": leaders, "packs": packs}
+    return {"civs": civs, "civ_ages": civ_ages, "leaders": leaders, "packs": packs}
 
 
 def parse_bonuses(bonuses_js: str) -> dict:
@@ -395,17 +400,20 @@ def drift_report(registry: dict, app: dict, bonuses: dict | None = None) -> list
     app_civs = {norm(c) for c in app["civs"]}
     app_leaders = {norm(l) for l in app["leaders"]}
 
-    # The app currently ships Antiquity civs only. Civs with no reliable age
-    # label (missing breadcrumb) are included with a caveat rather than
-    # silently skipped — 2K's age labels have been wrong before (see
-    # AGE_OVERRIDES), so err toward flagging.
+    # The app ships civs from every age; each must be present in civAges with
+    # the age 2K lists. Civs with no reliable age label (missing breadcrumb)
+    # are flagged with a caveat rather than silently skipped — 2K's age labels
+    # have been wrong before (see AGE_OVERRIDES), so err toward flagging.
+    app_ages = {norm(name): age for name, age in app.get("civ_ages", {}).items()}
     for civ in registry["civs"]:
-        if civ["age"] not in ("Antiquity", None):
-            continue
-        if norm(civ["name"]) not in app_civs:
+        key = norm(civ["name"])
+        if key not in app_civs:
             caveat = " — age unknown, verify" if civ["age"] is None else ""
-            lines.append(f"- Antiquity civ missing from app civList: **{civ['name']}**"
+            lines.append(f"- {civ['age'] or 'Unknown-age'} civ missing from app civAges: **{civ['name']}**"
                          + (f" (from {civ['dlc']})" if civ["dlc"] else " (base game)") + caveat)
+        elif civ["age"] and app_ages.get(key) and app_ages[key] != civ["age"]:
+            lines.append(f"- Age mismatch for **{civ['name']}**: app civAges says "
+                         f"{app_ages[key]}, 2K says {civ['age']}")
 
     for leader in registry["leaders"]:
         if norm(leader["name"]) not in app_leaders:
