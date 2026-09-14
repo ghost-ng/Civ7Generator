@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-17T10:31:44+00:00",
+  "generatedAt": "2026-09-14T11:18:24+00:00",
   "source": "https://civilization.2k.com/civ-vii (rosters via https://civilization.fandom.com/api.php fallback)",
   "civs": [
     {
@@ -280,12 +280,20 @@
       "dlc": "Tides of Power Collection"
     },
     {
+      "name": "Elizabeth",
+      "dlc": null
+    },
+    {
       "name": "Friedrich",
       "dlc": null
     },
     {
       "name": "Genghis Khan",
       "dlc": "Right to Rule Collection"
+    },
+    {
+      "name": "George Washington",
+      "dlc": null
     },
     {
       "name": "Gilgamesh",
