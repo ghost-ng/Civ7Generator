@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-14T11:18:24+00:00",
+  "generatedAt": "2026-09-21T11:31:14+00:00",
   "source": "https://civilization.2k.com/civ-vii (rosters via https://civilization.fandom.com/api.php fallback)",
   "civs": [
     {
@@ -13,12 +13,22 @@
       "dlc": "Right to Rule Collection"
     },
     {
+      "name": "Babylonian",
+      "age": "Antiquity",
+      "dlc": null
+    },
+    {
       "name": "Carthage",
       "age": "Antiquity",
       "dlc": "Crossroads of the World Collection"
     },
     {
       "name": "Egypt",
+      "age": "Antiquity",
+      "dlc": null
+    },
+    {
+      "name": "Gallic",
       "age": "Antiquity",
       "dlc": null
     },
@@ -96,6 +106,11 @@
       "name": "Dai Viet",
       "age": "Exploration",
       "dlc": "Right to Rule Collection"
+    },
+    {
+      "name": "English",
+      "age": "Exploration",
+      "dlc": null
     },
     {
       "name": "Goryeo",
